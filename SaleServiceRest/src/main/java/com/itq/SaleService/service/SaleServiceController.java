@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.itq.SaleService.business.SaleBusiness;
@@ -27,10 +29,10 @@ public class SaleServiceController {
 	public Ack createSale(@Valid @RequestBody Sale sale) {
 		Ack ack = new Ack();
 		if (saleBusiness.createSale(sale)) {
-			ack.setCode(0);
+			ack.setCode(200);
 			ack.setDescription("Sale created successfully");
 		} else {
-			ack.setCode(1);
+			ack.setCode(400);
 			ack.setDescription("ERROR: Sale not created");
 		}	
 		return ack;
@@ -44,7 +46,18 @@ public class SaleServiceController {
     public List<Sale> getAllSales() {
         return (List<Sale>) saleBusiness.getAllSales();
     }
-    
+    @PutMapping(value = "/sale/{saleId}/status", consumes = "application/json", produces = "application/json")
+    public Ack updateSaleStatus(@Valid @PathVariable("saleId") int saleId, @RequestParam("status") String newStatus) {
+        Ack ack = new Ack();
+        if (saleBusiness.updateSaleStatus(saleId, newStatus)) {
+            ack.setCode(200);
+            ack.setDescription("Sale status updated successfully");
+        } else {
+            ack.setCode(400);
+            ack.setDescription("Error updating sale status");
+        }
+        return ack;
+    }
     @DeleteMapping(value = "/sale/{saleId}", produces = "application/json")
     public Ack deleteSale(@PathVariable("saleId") int saleId) {
         Ack ack = new Ack();

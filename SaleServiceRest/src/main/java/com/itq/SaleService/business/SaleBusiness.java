@@ -20,8 +20,8 @@ public class SaleBusiness {
         return saleDao.getSaleById(saleId);
      }
 
-     public boolean updateSale(int userId, Sale sale) {
-        return saleDao.updateSale(userId, sale);
+     public boolean updateSaleStatus(int userId, String newStatus) {
+        return saleDao.updateSaleStatus(userId, newStatus);
      }
 
      public boolean deleteSale(int saleId) {

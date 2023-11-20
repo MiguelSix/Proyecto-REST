@@ -16,7 +16,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
 import com.itq.SaleService.dto.Sale;
-
+import com.itq.SaleService.service.CustomSaleException;
 
 @Repository
 public class SaleDao {
@@ -82,14 +82,18 @@ public class SaleDao {
 		
 		//Verify that the client exist in the bd
 		if(!this.existUser(clientId)){
-			LOGGER.error("Error creating the sale: Client with ID {} either does not exist.", clientId);
-			return false;
+			String errorMessage ="Error creating the sale: Client with ID {} either does not exist."+ clientId;
+			LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+			
 		}
 
 		//Verify that the product exist in the bd
 		if(!this.existProduct(productId)){
-			LOGGER.error("Error creating the sale: Product with ID {} either does not exist.", productId);
-			return false;
+			String errorMessage="Error creating the sale: Product with ID {} either does not exist."+productId;
+			LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+			
 		}
 		
 		int providerId = this.getProductProvider(productId);
@@ -135,8 +139,10 @@ public class SaleDao {
 	
 	public Sale getSaleById(int saleId) {
 		if(!this.existSale(saleId)) {
-            LOGGER.info("Sale don't exist with ID: { " + saleId + " }");
-			return null;
+			String errorMessage = "Sale don't exist with ID: { " + saleId + " }";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+			
 		}
 		StringBuffer saleSql= new StringBuffer("");
         saleSql.append("SELECT * FROM sales WHERE saleId = ?");
@@ -152,16 +158,36 @@ public class SaleDao {
         }
         return null;
 	}
-
-	public boolean updateSale(int userId, Sale sale) {
+	
+	public boolean updateSaleStatus(int saleId,String newStatus) {
+		if(!this.existSale(saleId)) {
+			String errorMessage = "Sale with id: {" + saleId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+		}
 		
-		return false;
+		StringBuffer saleSql = new StringBuffer("");
+        saleSql.append("UPDATE sales SET  status = ? ");
+        saleSql.append("WHERE saleId = ?");
+        
+        final String saleQuery = saleSql.toString();
+        try {
+        	 jdbcTemplate.update(saleQuery, newStatus,saleId);
+
+            LOGGER.info("Sale with id: {" + saleId + "} updated.");
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("Error updating sale on the database. Message: " + e.getMessage());
+            return false;
+        }
+	
 	}
 
 	public boolean deleteSale(int saleId) {
 		if(!this.existSale(saleId)) {
-			LOGGER.error("Error deleting sale: Sale with ID {} either does not exist .", saleId);
-			return false;
+			String errorMessage = "Error deleting sale: Sale with ID {} either does not exist ."+saleId;
+			LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
 		}
 		StringBuffer saleSql= new StringBuffer("");
         saleSql.append("DELETE FROM sales WHERE saleId = ?");
