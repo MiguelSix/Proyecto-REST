@@ -189,6 +189,7 @@ public class SaleDao {
 			LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 		}
+		
 		StringBuffer saleSql= new StringBuffer("");
         saleSql.append("DELETE FROM sales WHERE saleId = ?");
         final String saleQuery = saleSql.toString();

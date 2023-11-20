@@ -29,4 +29,10 @@ public class CustomExceptionHandler {
         LOGGER.error("ERROR: " + errors.toString());
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+    @ExceptionHandler(CustomSaleException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ResponseEntity<String> handleCustomAuctionException(CustomSaleException ex) {
+        LOGGER.error("CustomAuctionException: " + ex.getMessage());
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
 }
