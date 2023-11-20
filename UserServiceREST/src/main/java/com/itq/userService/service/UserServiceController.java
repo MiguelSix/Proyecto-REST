@@ -31,10 +31,10 @@ public class UserServiceController {
 	public Ack createUser(@Valid @RequestBody User user) {
 		Ack ack = new Ack();
 		if (userBusiness.createUser(user)) {
-			ack.setCode(0);
+			ack.setCode(200);
 			ack.setDescription("User created successfully");
 		} else {
-			ack.setCode(1);
+			ack.setCode(400);
 			ack.setDescription("ERROR: User not created");
 		}	
 		return ack;
@@ -44,10 +44,10 @@ public class UserServiceController {
 	public Ack updateUser(@PathVariable("userId") int userId, @Valid @RequestBody User user) {
 		Ack ack = new Ack();
 		if (userBusiness.updateUser(userId, user)) {
-			ack.setCode(0);
+			ack.setCode(200);
 			ack.setDescription("User updated successfully");
 		} else {
-			ack.setCode(1);
+			ack.setCode(400);
 			ack.setDescription("ERROR: User not updated");
 		}	
 		return ack;
@@ -57,10 +57,10 @@ public class UserServiceController {
 	public Ack deleteUser(@PathVariable("userId") int userId) {
 		Ack ack = new Ack();
 		if (userBusiness.deleteUser(userId)) {
-			ack.setCode(0);
+			ack.setCode(200);
 			ack.setDescription("User deleted successfully");
 		} else {
-			ack.setCode(1);
+			ack.setCode(400);
 			ack.setDescription("ERROR: User not deleted");
 		}	
 		return ack;
@@ -69,6 +69,11 @@ public class UserServiceController {
 	@GetMapping("/users")
 	public List<User> getAll() {
 		return (List<User>) userBusiness.getAllUsers();
+	}
+
+	@GetMapping("/users/country/{country}")
+	public List<User> getUsersByCountry(@PathVariable("country") String country) {
+		return (List<User>) userBusiness.getUsersByCountry(country);
 	}
 
 }

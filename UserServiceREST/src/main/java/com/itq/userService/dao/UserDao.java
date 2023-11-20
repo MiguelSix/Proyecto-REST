@@ -252,4 +252,19 @@ public class UserDao {
         return null;
     }
 
+    public List<User> getUsersbyCountry(String country) {
+        StringBuffer sql = new StringBuffer("");
+        sql.append("SELECT * FROM users INNER JOIN address ON users.addressId = address.addressId WHERE country = ?");
+        final String query = sql.toString();
+        try {
+            @SuppressWarnings("deprecation")
+			List <User> users = jdbcTemplate.query(query, new Object[]{country}, new UserRowMapper());
+            LOGGER.info("All users from country {" + country + "} retrieved successfully");
+            return users;
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving all users from country {" + country + "} from the database. Message: " + e.getMessage());
+        }
+        return null;
+    }
+
 }

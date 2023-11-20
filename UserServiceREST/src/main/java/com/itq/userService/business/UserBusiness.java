@@ -32,4 +32,8 @@ public class UserBusiness {
     public List<User> getAllUsers() {
 		return (List<User>) userDao.getAllUsers();
 	}
+
+    public List<User> getUsersByCountry (String country) {
+        return (List<User>) userDao.getUsersbyCountry(country);
+    }
 }
