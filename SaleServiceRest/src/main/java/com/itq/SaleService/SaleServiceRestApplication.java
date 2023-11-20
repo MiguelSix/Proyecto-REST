@@ -1,4 +1,4 @@
-package com.itq.SaleService;
+package com.itq.saleService;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

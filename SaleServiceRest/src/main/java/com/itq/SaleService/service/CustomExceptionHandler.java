@@ -1,4 +1,4 @@
-package com.itq.SaleService.service;
+package com.itq.saleService.service;
 
 import java.util.HashMap;
 import java.util.Map;

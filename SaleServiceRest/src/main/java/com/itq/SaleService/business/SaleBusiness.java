@@ -1,12 +1,12 @@
-package com.itq.SaleService.business;
+package com.itq.saleService.business;
 
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.itq.SaleService.dao.SaleDao;
-import com.itq.SaleService.dto.Sale;
+import com.itq.saleService.dao.SaleDao;
+import com.itq.saleService.dto.Sale;
 
 @Service
 public class SaleBusiness {

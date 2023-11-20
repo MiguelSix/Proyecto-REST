@@ -1,4 +1,4 @@
-package com.itq.SaleService.service;
+package com.itq.saleService.service;
 
 @SuppressWarnings("serial")
 public class CustomSaleException extends RuntimeException {

@@ -1,6 +1,9 @@
-package com.itq.SaleService.service;
+package com.itq.saleService.service;
 
 import java.util.List;
+
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,11 +15,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.itq.SaleService.business.SaleBusiness;
-import com.itq.SaleService.dto.Ack;
-import com.itq.SaleService.dto.Sale;
-
-import jakarta.validation.Valid;
+import com.itq.saleService.business.SaleBusiness;
+import com.itq.saleService.dto.Ack;
+import com.itq.saleService.dto.Sale;
 
 @RestController
 @Validated

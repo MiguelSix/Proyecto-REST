@@ -1,4 +1,4 @@
-package com.itq.SaleService.dao;
+package com.itq.saleService.dao;
 import java.util.List;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -15,8 +15,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
-import com.itq.SaleService.dto.Sale;
-import com.itq.SaleService.service.CustomSaleException;
+import com.itq.saleService.dto.Sale;
+import com.itq.saleService.service.CustomSaleException;
 
 @Repository
 public class SaleDao {

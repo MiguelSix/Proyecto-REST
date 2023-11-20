@@ -1,4 +1,4 @@
-package com.itq.SaleService;
+package com.itq.saleService;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

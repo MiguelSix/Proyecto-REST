@@ -1,4 +1,4 @@
-package com.itq.SaleService.dto;
+package com.itq.saleService.dto;
 
 public class Ack {
 	
