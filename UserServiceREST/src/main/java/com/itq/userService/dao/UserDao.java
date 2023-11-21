@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.itq.userService.dto.Address;
 import com.itq.userService.dto.User;
+import com.itq.userService.service.CustomUserException;
 
 @Repository
 public class UserDao {
@@ -86,6 +87,13 @@ public class UserDao {
         final String addressQuery = addressSql.toString();
         final int addressId;
 
+        //Check if the email already exists in the database, if so, throw an exception
+        if(!jdbcTemplate.queryForList("SELECT email FROM users WHERE email = ?", user.getMail()).isEmpty()) {
+            String errorMessage = "ERROR 409. Email already exists in the database";
+            LOGGER.error(errorMessage);
+            throw new CustomUserException(errorMessage);
+        }
+
         try {
             GeneratedKeyHolder addressKeyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(new PreparedStatementCreator() {
@@ -141,6 +149,14 @@ public class UserDao {
     }
 
     public User getUserById(int userId) {
+
+        //Check if the user exists in the database, if not, throw an exception
+        if(jdbcTemplate.queryForList("SELECT userId FROM users WHERE userId = ?", userId).isEmpty()) {
+            String errorMessage = "ERROR 404. User with ID {" + userId + "} not found in the database";
+            LOGGER.error(errorMessage);
+            throw new CustomUserException(errorMessage);
+        }
+
         StringBuffer sql = new StringBuffer("");
         sql.append("SELECT * FROM users INNER JOIN address ON users.addressId = address.addressId WHERE userId = ?");
         final String query = sql.toString();
@@ -167,8 +183,9 @@ public class UserDao {
         User existingUser = getUserById(userId);
 
         if (existingUser == null) {
-            LOGGER.error("User with ID {} not found in the database", userId);
-            return false;
+            String errorMessage = "ERROR 404. User with ID {" + userId + "} not found in the database";
+            LOGGER.error(errorMessage);
+            throw new CustomUserException(errorMessage);
         }
         // Step 1: Update user information
         jdbcTemplate.update(connection -> {
@@ -216,8 +233,9 @@ public class UserDao {
         try {
             User userToDelete = getUserById(userId);
             if (userToDelete == null) {
-                LOGGER.error("User with ID {} not found in the database", userId);
-                return false;
+                String errorMessage = "ERROR 404. User with ID {" + userId + "} not found in the database";
+                LOGGER.error(errorMessage);
+                throw new CustomUserException(errorMessage);
             }
             int addressId = userToDelete.getAddress().getAddressID();
             // Delete the user
@@ -239,6 +257,14 @@ public class UserDao {
     }
 
     public List <User> getAllUsers() {
+
+        // Check if there are users in the database, if not, throw an exception
+        if(jdbcTemplate.queryForList("SELECT userId FROM users").isEmpty()) {
+            String errorMessage = "ERROR 404. There are no users in the database";
+            LOGGER.error(errorMessage);
+            throw new CustomUserException(errorMessage);
+        }
+
         StringBuffer sql = new StringBuffer("");
         sql.append("SELECT * FROM users INNER JOIN address ON users.addressId = address.addressId");
         final String query = sql.toString();
@@ -253,6 +279,21 @@ public class UserDao {
     }
 
     public List<User> getUsersbyCountry(String country) {
+
+        // Check if there are users in the database, if not, throw an exception
+        if(jdbcTemplate.queryForList("SELECT userId FROM users").isEmpty()) {
+            String errorMessage = "ERROR 404. There are no users in the database";
+            LOGGER.error(errorMessage);
+            throw new CustomUserException(errorMessage);
+        }
+
+        // Check if there are users from the specified country, if not, throw an exception
+        if(jdbcTemplate.queryForList("SELECT userId FROM users INNER JOIN address ON users.addressId = address.addressId WHERE country = ?", country).isEmpty()) {
+            String errorMessage = "ERROR 404. There are no users from country {" + country + "} in the database";
+            LOGGER.error(errorMessage);
+            throw new CustomUserException(errorMessage);
+        }
+        
         StringBuffer sql = new StringBuffer("");
         sql.append("SELECT * FROM users INNER JOIN address ON users.addressId = address.addressId WHERE country = ?");
         final String query = sql.toString();

@@ -59,20 +59,34 @@ public class AuctionDao {
 
     @SuppressWarnings("deprecation")
 	public boolean createAuction(final Auction auction) {
-
         // check if the product exists
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM products WHERE productId = ?)", new Object[]{auction.getProductId()}, Boolean.class)) {
-            String errorMessage = "Product with id: {" + auction.getProductId() + "} does not exist on the database.";
+            String errorMessage = "ERROR 404. Product with id: {" + auction.getProductId() + "} does not exist on the database.";
             LOGGER.error(errorMessage);
             throw new CustomAuctionException(errorMessage);
         }
 
-        // check if the provider exists and if is a provider
+        // check if the provider exists
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE userId = ? AND type = 'Provider')", new Object[]{auction.getProviderId()}, Boolean.class)) {
-            String errorMessage = "User with id: {" + auction.getProviderId() + "} does not exist or is not a provider.";
+            String errorMessage = "ERROR 404. Provider with id: {" + auction.getProviderId() + "} does not exist on the database.";
             LOGGER.error(errorMessage);
             throw new CustomAuctionException(errorMessage);
         }
+
+        // check if the provider has the product
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM products WHERE productId = ? AND providerId = ?)", new Object[]{auction.getProductId(), auction.getProviderId()}, Boolean.class)) {
+            String errorMessage = "ERROR 401 Unauthorized. Provider with id: {" + auction.getProviderId() + "} does not have the product with id: {" + auction.getProductId() + "} on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
+        // check if the product has stock, if not, the auction cannot be created
+        if (jdbcTemplate.queryForObject("SELECT stock FROM products WHERE productId = ?", new Object[]{auction.getProductId()}, Integer.class) == 0) {
+            String errorMessage = "ERROR 409. Product with id: {" + auction.getProductId() + "} does not have stock.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
 
         StringBuffer auctionSql = new StringBuffer("");
         auctionSql.append("INSERT INTO auctions (auctionId, initialPrice, finalPrice, date, status, providerId, productId) ");
@@ -110,10 +124,9 @@ public class AuctionDao {
 
     @SuppressWarnings("deprecation")
 	public boolean updateAuction(int auctionId, Auction auction) {
-        
         // check if the auction exists
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM auctions WHERE auctionId = ?)", new Object[]{auctionId}, Boolean.class)) {
-            String errorMessage = "Auction with id: {" + auctionId + "} does not exist on the database.";
+            String errorMessage = "ERROR 404. Auction with id: {" + auctionId + "} does not exist on the database.";
             LOGGER.error(errorMessage);
             throw new CustomAuctionException(errorMessage);
         }
@@ -136,6 +149,13 @@ public class AuctionDao {
 
     @SuppressWarnings("deprecation")
 	public Auction getAuctionById(int auctionId) {
+        // check if the auction exists
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM auctions WHERE auctionId = ?)", new Object[]{auctionId}, Boolean.class)) {
+            String errorMessage = "ERROR 404. Auction with id: {" + auctionId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
         StringBuffer auctionSql = new StringBuffer("");
         auctionSql.append("SELECT auctionId, initialPrice, finalPrice, date, status, providerId, productId ");
         auctionSql.append("FROM auctions ");
@@ -153,6 +173,12 @@ public class AuctionDao {
     }
 
     public List<Auction> getAllAuctions() {
+        // check if there are auctions on the database
+        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM auctions", Integer.class) == 0) {
+            String errorMessage = "ERROR 404. There are no auctions on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
         StringBuffer auctionSql = new StringBuffer("");
         auctionSql.append("SELECT * FROM auctions");
 
@@ -169,6 +195,19 @@ public class AuctionDao {
 
     @SuppressWarnings("deprecation")
 	public List<Auction> getAuctionsByProviderId(int providerId) {
+        // check if the provider exists
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE userId = ? AND type = 'Provider')", new Object[]{providerId}, Boolean.class)) {
+            String errorMessage = "ERROR 404. Provider with id: {" + providerId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
+        // check if the provider has auctions
+        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM auctions WHERE providerId = ?", new Object[]{providerId}, Integer.class) == 0) {
+            String errorMessage = "ERROR 404. Provider with id: {" + providerId + "} does not have auctions on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
         StringBuffer auctionSql = new StringBuffer("");
         auctionSql.append("SELECT * FROM auctions ");
         auctionSql.append("WHERE providerId = ?");
@@ -186,6 +225,19 @@ public class AuctionDao {
 
     @SuppressWarnings("deprecation")
     public List<Auction> getAuctionsByUserId(int userId) {
+        // check if the user is a client
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE userId = ? AND type = 'Client')", new Object[]{userId}, Boolean.class)) {
+            String errorMessage = "ERROR 404. User with id: {" + userId + "} is not a client.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
+        // check if the client has auctions
+        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM auctions WHERE clientId = ?", new Object[]{userId}, Integer.class) == 0) {
+            String errorMessage = "ERROR 404. Client with id: {" + userId + "} does not have auctions on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
         StringBuffer auctionSql = new StringBuffer("");
         auctionSql.append("SELECT * FROM auctions ");
         auctionSql.append("WHERE clientId = ?");
@@ -201,7 +253,14 @@ public class AuctionDao {
         }
     }
 
-    public boolean deleteAuction(int auctionId) {
+    @SuppressWarnings("deprecation")
+	public boolean deleteAuction(int auctionId) {
+        // check if the auction exists
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM auctions WHERE auctionId = ?)", new Object[]{auctionId}, Boolean.class)) {
+            String errorMessage = "ERROR 404. Auction with id: {" + auctionId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
         StringBuffer auctionSql = new StringBuffer("");
         auctionSql.append("DELETE FROM auctions ");
         auctionSql.append("WHERE auctionId = ?");
@@ -227,7 +286,7 @@ public class AuctionDao {
 
         // check if the auction exists
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM auctions WHERE auctionId = ?)", new Object[]{auctionId}, Boolean.class)) {
-            String errorMessage = "Auction with id: {" + auctionId + "} does not exist on the database.";
+            String errorMessage = "ERROR 404. Auction with id: {" + auctionId + "} does not exist on the database.";
             LOGGER.error(errorMessage);
             throw new CustomAuctionException(errorMessage);
         }
@@ -235,7 +294,7 @@ public class AuctionDao {
         // check if the user exists and if is a client
         int userId = bid.getClientId();
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE userId = ? AND type = 'Client')", new Object[]{userId}, Boolean.class)) {
-            String errorMessage = "User with id: {" + userId + "} does not exist or is not a client.";
+            String errorMessage = "ERROR 404. User with id: {" + userId + "} is not a client.";
             LOGGER.error(errorMessage);
             throw new CustomAuctionException(errorMessage);
         }
@@ -246,14 +305,14 @@ public class AuctionDao {
 
         // check if the amount of the bid is higher than the initial price of the auction
         if (bid.getPrice() < jdbcTemplate.queryForObject("SELECT initialPrice FROM auctions WHERE auctionId = ?", new Object[]{auctionId}, Double.class)) {
-            String errorMessage = "The amount of the bid is lower than the initial price of the auction.";
+            String errorMessage = "ERROR 409. The amount of the bid is lower than the initial price of the auction.";
             LOGGER.error(errorMessage);
             throw new CustomAuctionException(errorMessage);
         }
 
         // check if the amount of the bid is higher than the final price of the auction
         if (bid.getPrice() < jdbcTemplate.queryForObject("SELECT finalPrice FROM auctions WHERE auctionId = ?", new Object[]{auctionId}, Double.class)) {
-            String errorMessage = "The amount of the bid is lower than the actual price of the auction.";
+            String errorMessage = "ERROR 409. The amount of the bid is lower than the actual price of the auction.";
             LOGGER.error(errorMessage);
             throw new CustomAuctionException(errorMessage);
         }
@@ -294,6 +353,19 @@ public class AuctionDao {
 
     @SuppressWarnings("deprecation")
 	public List<Bid> getBidsByAuctionId(int auctionId) {
+        // check if the auction exists
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM auctions WHERE auctionId = ?)", new Object[]{auctionId}, Boolean.class)) {
+            String errorMessage = "ERROR 404. Auction with id: {" + auctionId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
+        // check if the auction has bids
+        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM pujas WHERE auctionId = ?", new Object[]{auctionId}, Integer.class) == 0) {
+            String errorMessage = "ERROR 404. Auction with id: {" + auctionId + "} does not have bids on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
         StringBuffer bidSql = new StringBuffer("");
         bidSql.append("SELECT * FROM pujas ");
         bidSql.append("WHERE auctionId = ?");
@@ -311,6 +383,19 @@ public class AuctionDao {
 
     @SuppressWarnings("deprecation")
     public Bid getHighestBidByAuctionId(int auctionId) {
+        // check if the auction exists
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM auctions WHERE auctionId = ?)", new Object[]{auctionId}, Boolean.class)) {
+            String errorMessage = "ERROR 404. Auction with id: {" + auctionId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
+        // check if the auction has bids
+        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM pujas WHERE auctionId = ?", new Object[]{auctionId}, Integer.class) == 0) {
+            String errorMessage = "ERROR 404. Auction with id: {" + auctionId + "} does not have bids on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
         StringBuffer bidSql = new StringBuffer("");
         bidSql.append("SELECT * FROM pujas ");
         bidSql.append("WHERE auctionId = ? ");

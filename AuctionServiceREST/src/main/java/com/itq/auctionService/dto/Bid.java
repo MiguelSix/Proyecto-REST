@@ -11,10 +11,10 @@ public class Bid {
     private int clientId;
     private int providerId;
     private int productId;
-    @NotBlank(message = "Date is mandatory")
-    @Pattern(regexp = "([0-9]{4})-([0-9]{2})-([0-9]{2})", message = "Date must be in the format yyyy-mm-dd")
+    @NotBlank(message = "ERROR 400. Date is mandatory")
+    @Pattern(regexp = "([0-9]{4})-([0-9]{2})-([0-9]{2})", message = "ERROR 400. Date must be in the format yyyy-mm-dd")
     private String date;
-    @Min(value = 0, message = "Price must be greater than 0")
+    @Min(value = 0, message = "ERROR 400. Price must be greater than 0")
     private double price;
 	public int getBidId() {
 		return bidId;

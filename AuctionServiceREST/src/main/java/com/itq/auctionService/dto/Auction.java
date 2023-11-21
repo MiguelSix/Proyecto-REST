@@ -10,15 +10,15 @@ public class Auction {
 	private int productId;
 	private int clientId;
 	private int providerId;
-	@Min(value = 0, message = "Initial price must be greater than 0")
+	@Min(value = 0, message = "ERROR 400. Initial price must be greater than 0")
 	private double initialPrice;
-	@Min(value = 0, message = "Final price must be greater than 0")
+	@Min(value = 0, message = "ERROR 400. Final price must be greater than 0")
 	private double finalPrice;
-	@NotBlank(message = "Auction date is mandatory")
-	@Pattern(regexp = "([0-9]{4})-([0-9]{2})-([0-9]{2})", message = "Auction date must be in the format yyyy-mm-dd")
+	@NotBlank(message = "ERROR 400. Auction date is mandatory")
+	@Pattern(regexp = "([0-9]{4})-([0-9]{2})-([0-9]{2})", message = "ERROR 400. Auction date must be in the format yyyy-mm-dd")
 	private String auctionDate;
-	@NotBlank(message = "Auction status is mandatory")
-	@Pattern(regexp = "^(Active|Inactive)$", message = "Auction status must be Active or Inactive")
+	@NotBlank(message = "ERROR 400. Auction status is mandatory")
+	@Pattern(regexp = "^(Active|Inactive)$", message = "ERROR 400. Auction status must be Active or Inactive")
 	private String auctionStatus;
 
 	public int getProviderId() {

@@ -1,27 +1,46 @@
 package com.itq.userService.dto;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+
 import org.hibernate.validator.constraints.Length;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Address {
 	
 	private int addressID;
-	@Length(max = 50, message = "Street must be less than 50 characters")
+	@NotBlank(message = "ERROR 400. Street is mandatory")
+	@NotEmpty(message = "ERROR 400. Street is mandatory")
+	@Length(max = 50, message = "ERROR 400. Street must be less than 50 characters")
 	private String street;
-	@Length(max = 5, message = "ExtNumber must be less than 5 characters")
+	@NotEmpty(message = "ERROR 400. ExtNumber is mandatory")
+	@NotBlank(message = "ERROR 400. ExtNumber is mandatory")
+	@Length(max = 5, message = "ERROR 400. ExtNumber must be less than 5 characters")
 	private int extNumber;
-	@Length(max = 5, message = "IntNumber must be less than 5 characters")
+	@NotEmpty(message = "ERROR 400. IntNumber is mandatory")
+	@NotBlank(message = "ERROR 400. IntNumber is mandatory")
+	@Length(max = 5, message = "ERROR 400. IntNumber must be less than 5 characters")
 	private int intNumber;
 	@JsonProperty("suburb")
-	@Length(max = 50, message = "Locality must be less than 50 characters")
+	@NotEmpty(message = "ERROR 400. Locality is mandatory")
+	@NotBlank(message = "ERROR 400. Locality is mandatory")
+	@Length(max = 50, message = "ERROR 400. Locality must be less than 50 characters")
 	private String locality;
-	@Length(max = 10, message = "ZipCode must be less than 10 characters")
+	@NotEmpty(message = "ERROR 400. ZipCode is mandatory")
+	@NotBlank(message = "ERROR 400. ZipCode is mandatory")
+	@Length(max = 10, message = "ERROR 400. ZipCode must be less than 10 characters")
 	private int zipCode;
-	@Length(max = 25, message = "City must be less than 25 characters")
+	@NotEmpty(message = "ERROR 400. City is mandatory")
+	@NotBlank(message = "ERROR 400. City is mandatory")
+	@Length(max = 25, message = "ERROR 400. City must be less than 25 characters")
 	private String city;
-	@Length(max = 25, message = "State must be less than 25 characters")
+	@NotEmpty(message = "ERROR 400. State is mandatory")
+	@NotBlank(message = "ERROR 400. State is mandatory")
+	@Length(max = 25, message = "ERROR 400. State must be less than 25 characters")
 	private String state;
-	@Length(max = 25, message = "Country must be less than 25 characters")
+	@NotEmpty(message = "ERROR 400. Country is mandatory")
+	@NotBlank(message = "ERROR 400. Country is mandatory")
+	@Length(max = 25, message = "ERROR 400. Country must be less than 25 characters")
 	private String country;
 	
 	public String getStreet() {
