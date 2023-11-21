@@ -237,13 +237,6 @@ public class SaleDao {
         return null;
 	}
 	public List<Sale> getSaleByDate(String date){
-		if(!this.existDate(date)){
-			String errorMessage ="Error 404. Date  {"+ date+"} either does not exist.";
-			LOGGER.error(errorMessage);
-            throw new CustomSaleException(errorMessage);
-			
-		}
-
         //if the date does not have sales
         if(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM sales WHERE date = ?", Integer.class, date) == 0) {
         	String errorMessage ="Error 404. Date {"+ date+"} does not have sales.";
