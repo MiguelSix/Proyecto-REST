@@ -106,7 +106,7 @@ public class SaleDao {
 		
 		//Verify that the client exist in the bd
 		if(!this.existUser(clientId)){
-			String errorMessage ="Error creating the sale: Client with ID {"+ clientId+"} either does not exist.";
+			String errorMessage ="Error 404. Client with ID {"+ clientId+"} either does not exist on the database.";
 			LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 			
@@ -114,7 +114,7 @@ public class SaleDao {
 
 		//Verify that the product exist in the bd
 		if(!this.existProduct(productId)){
-			String errorMessage="Error creating the sale: Product with ID {"+productId+"} either does not exist.";
+			String errorMessage="Error 404: Product with ID {"+productId+"} either does not exist on the database.";
 			LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 			
@@ -163,7 +163,7 @@ public class SaleDao {
 	
 	public Sale getSaleById(int saleId) {
 		if(!this.existSale(saleId)) {
-			String errorMessage = "Sale don't exist with ID: { " + saleId + " }";
+			String errorMessage = "ERROR 404. Sale with ID: { " + saleId + " } don't exist on the database";
             LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 			
@@ -184,13 +184,13 @@ public class SaleDao {
 	}
 	public List<Sale> getSaleByCategory(String category){
 		if(!this.verifyCategory(category)) {
-			String errorMessage = "Sale category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other";
+			String errorMessage = "ERROR 400. Sale category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other";
             LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 			
 		}
 		if(!this.existCategory(category)) {
-			String errorMessage = "Sale don't exist with category: { " + category + " }";
+			String errorMessage = "ERROR 400. Sale don't exist with category: { " + category + " }";
             LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 			
@@ -211,11 +211,17 @@ public class SaleDao {
 	}
 	public List<Sale> getSaleByClient(int clientId){
 		if(!this.existClient(clientId)){
-			String errorMessage ="Error locating the sale: Client with ID {"+ clientId+"} either does not exist.";
+			String errorMessage ="Error 404. Client with ID {"+ clientId+"} either does not exist.";
 			LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 			
 		}
+        //if the client does not have sales
+        if(!this.existSale(clientId)) {
+        	String errorMessage ="Error 404. Client with ID {"+ clientId+"} does not have sales.";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+        }
         StringBuffer saleSql= new StringBuffer("");
         saleSql.append("SELECT * FROM sales WHERE clientId = ?");
         final String saleQuery = saleSql.toString();
@@ -232,11 +238,18 @@ public class SaleDao {
 	}
 	public List<Sale> getSaleByDate(String date){
 		if(!this.existDate(date)){
-			String errorMessage ="Error locating sale: Date  {"+ date+"} either does not exist.";
+			String errorMessage ="Error 404. Date  {"+ date+"} either does not exist.";
 			LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 			
 		}
+
+        //if the date does not have sales
+        if(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM sales WHERE date = ?", Integer.class, date) == 0) {
+        	String errorMessage ="Error 404. Date {"+ date+"} does not have sales.";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+        }
         StringBuffer saleSql= new StringBuffer("");
         saleSql.append("SELECT * FROM sales WHERE date = ?");
         final String saleQuery = saleSql.toString();
@@ -253,7 +266,7 @@ public class SaleDao {
 	}
 	public boolean updateSaleStatus(int saleId,String newStatus) {
 		if(!this.existSale(saleId)) {
-			String errorMessage = "Sale with id: {" + saleId + "} does not exist on the database.";
+			String errorMessage = "ERROR 404. Sale with id: {" + saleId + "} does not exist on the database.";
             LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 		}
@@ -277,7 +290,7 @@ public class SaleDao {
 
 	public boolean deleteSale(int saleId) {
 		if(!this.existSale(saleId)) {
-			String errorMessage = "Error deleting sale: Sale with ID {} either does not exist ."+saleId;
+			String errorMessage = "ERROR 404. Sale with ID {} either does not exist ."+saleId;
 			LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 		}
@@ -300,6 +313,12 @@ public class SaleDao {
 	}
 
     public List <Sale> getAllSales() {
+        //if there are no sales
+        if(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM sales", Integer.class) == 0) {
+            String errorMessage ="Error 404. There are no sales.";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+        }
     	StringBuffer saleSql= new StringBuffer("");
         saleSql.append("SELECT * FROM sales");
         final String saleQuery = saleSql.toString();

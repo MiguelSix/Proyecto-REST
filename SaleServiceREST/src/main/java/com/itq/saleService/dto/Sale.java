@@ -14,20 +14,20 @@ public class Sale {
 	private int productId;
 	private int providerId;
 	private int clientId;
-	@Length(max = 30, message = "Product name must be 30 characters or less")
+	@Length(max = 30, message = "ERROR 404. Product name must be 30 characters or less")
 	private String saleName;
-	@PositiveOrZero(message = "Product price must be greater than or equal to 0")
+	@PositiveOrZero(message = "ERROR 404. Product price must be greater than or equal to 0")
 	private float productPrice;
-	@NotBlank(message = "Date is mandatory")
-	@Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Date should be in the format YYYY-MM-DD")
+	@NotBlank(message = "ERROR 404. Date is mandatory")
+	@Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "ERROR 404. Date should be in the format YYYY-MM-DD")
 	private String date;
-	@Min(value = 1, message = "Product quantity must be greater than 0")
+	@Min(value = 1, message = "ERROR 404. Product quantity must be greater than 0")
 	private int productQuantity;
 	private float total;
-	@NotBlank(message = "Status is mandatory")
-	@Pattern(regexp = "^(Active|Inactive)$", message = "Status must be either Active or Inactive")
+	@NotBlank(message = "ERROR 404. Status is mandatory")
+	@Pattern(regexp = "^(Active|Inactive)$", message = "ERROR 404. Status must be either Active or Inactive")
 	private String status;
-	@Pattern(regexp="^(Food|Clothes|Electronics|Home|Health|Beauty|Automotive|Shoes|Other)$", message="Sale category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other")
+	@Pattern(regexp="^(Food|Clothes|Electronics|Home|Health|Beauty|Automotive|Shoes|Other)$", message="ERROR 404. Sale category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other")
     @JsonProperty("category")
     private String saleCategory;
 	
