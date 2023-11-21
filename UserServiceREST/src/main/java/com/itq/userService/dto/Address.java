@@ -1,5 +1,7 @@
 package com.itq.userService.dto;
 
+import javax.validation.constraints.Digits;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 
@@ -10,25 +12,18 @@ public class Address {
 	
 	private int addressID;
 	@NotBlank(message = "ERROR 400. Street is mandatory")
-	@NotEmpty(message = "ERROR 400. Street is mandatory")
 	@Length(max = 50, message = "ERROR 400. Street must be less than 50 characters")
 	private String street;
-	@NotEmpty(message = "ERROR 400. ExtNumber is mandatory")
-	@NotBlank(message = "ERROR 400. ExtNumber is mandatory")
-	@Length(max = 5, message = "ERROR 400. ExtNumber must be less than 5 characters")
+	@Min(value = 1, message = "ERROR 400. ExtNumber must be greater than 0")
 	private int extNumber;
-	@NotEmpty(message = "ERROR 400. IntNumber is mandatory")
-	@NotBlank(message = "ERROR 400. IntNumber is mandatory")
-	@Length(max = 5, message = "ERROR 400. IntNumber must be less than 5 characters")
+	@Min(value = 1, message = "ERROR 400. IntNumber must be greater than 0")
 	private int intNumber;
 	@JsonProperty("suburb")
-	@NotEmpty(message = "ERROR 400. Locality is mandatory")
-	@NotBlank(message = "ERROR 400. Locality is mandatory")
+	@NotEmpty(message = "ERROR 400. Suburb is mandatory")
+	@NotBlank(message = "ERROR 400. Suburb is mandatory")
 	@Length(max = 50, message = "ERROR 400. Locality must be less than 50 characters")
 	private String locality;
-	@NotEmpty(message = "ERROR 400. ZipCode is mandatory")
-	@NotBlank(message = "ERROR 400. ZipCode is mandatory")
-	@Length(max = 10, message = "ERROR 400. ZipCode must be less than 10 characters")
+	@Digits(integer = 5, fraction = 0, message = "ERROR 400. ZipCode must be 5 digits")
 	private int zipCode;
 	@NotEmpty(message = "ERROR 400. City is mandatory")
 	@NotBlank(message = "ERROR 400. City is mandatory")

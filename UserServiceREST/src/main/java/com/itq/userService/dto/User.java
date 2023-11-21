@@ -1,5 +1,6 @@
 package com.itq.userService.dto;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Length;
@@ -13,6 +14,7 @@ public class User {
 	@NotBlank(message = "ERROR 400. Lastname is mandatory")
 	@Length(max = 30, message = "ERROR 400. Lastname must be less than 30 characters")
 	private String lastname;
+	@Valid
 	private Address address;
 	@NotBlank(message = "ERROR 400. Phone is mandatory")
 	@Pattern(regexp="[0-9]{10}", message = "ERROR 400. Phone must be 10 digits")

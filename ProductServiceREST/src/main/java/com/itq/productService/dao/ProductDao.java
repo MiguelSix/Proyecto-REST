@@ -141,29 +141,30 @@ public class ProductDao {
 
     @SuppressWarnings("deprecation")
 	public boolean deleteProduct(int productId) {
-        StringBuffer productSql= new StringBuffer("");
-        productSql.append("DELETE FROM products WHERE productId = ?");
-        final String productQuery = productSql.toString();
 
-        //If there are no products, return a message
-        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM products WHERE productId = ?", new Object[]{productId}, Integer.class) == 0) {
+        // check if the product exists
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM products WHERE productId = ?)", new Object[]{productId}, Boolean.class)) {
             String errorMessage = "ERROR 404: Product with id: {" + productId + "} does not exist on the database.";
             LOGGER.error(errorMessage);
             throw new CustomProductException(errorMessage);
         }
 
+        //Delete the characteristics of the product
+        String deleteCharacteristicsSql = "DELETE FROM characteristics WHERE productId = ?";
+        jdbcTemplate.update(deleteCharacteristicsSql, productId);
+        
+        StringBuffer productSql= new StringBuffer("");
+        productSql.append("DELETE FROM products WHERE productId = ?");
+        final String productQuery = productSql.toString();
         try {
             jdbcTemplate.update(productQuery, productId);
             LOGGER.info("Product deleted succesfully with ID: { " + productId + " }");
-            // Delete characteristics
-            String deleteCharacteristicsSql = "DELETE FROM characteristics WHERE productId = ?";
-            jdbcTemplate.update(deleteCharacteristicsSql, productId);
             return true;
         } catch (Exception e) {
-            LOGGER.error("Error deleting product with ID {} in the database. Message {}", productId, e.getMessage());
-            e.printStackTrace();
+            String errorMessage = "ERROR 404: Product with id: {" + productId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
         }
-        return false;
     }
 
     public List <Product> getAllProducts() {
