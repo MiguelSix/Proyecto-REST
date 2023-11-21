@@ -13,10 +13,10 @@
 		</encoder>
 	</appender>
 	<appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-		<file>/app/logs/Auction_Project.log</file>
+		<file>/app/logs/Sale_Project.log</file>
 		<!-- Política de rotación de archivos de LOG -->
 		<rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-			<fileNamePattern>/app/logs/Auction_Project%d{dd-MM-yyyy}.log%i</fileNamePattern>
+			<fileNamePattern>/app/logs/Sale_Project%d{dd-MM-yyyy}.log%i</fileNamePattern>
 			<maxFileSize>50MB</maxFileSize>
 			<maxHistory>7</maxHistory>
 			<totalSizeCap>350MB</totalSizeCap>
