@@ -14,19 +14,19 @@ public class Product {
 
     private int productId;
     private int providerId;
-    @NotBlank(message = "Product name is mandatory")
-    @Length(max = 30, message = "Product name must be 30 characters or less")
+    @NotBlank(message = "ERROR 400. Product name is mandatory")
+    @Length(max = 30, message = "ERROR 400. Product name must be 30 characters or less")
     private String productName;
-    @Min(value = 0, message = "Product price must be greater than 0")
+    @Min(value = 0, message = "ERROR 400. Product price must be greater than 0")
     private double productPrice;
-    @Min(value = 0, message = "Product stock must be greater than 0")
+    @Min(value = 0, message = "ERROR 400. Product stock must be greater than 0")
     @JsonProperty("stock")
     private int productStock;
-    @NotBlank(message = "Product brand is mandatory")
-    @Length(max = 30, message = "Product brand must be 30 characters or less")
+    @NotBlank(message = "ERROR 400. Product brand is mandatory")
+    @Length(max = 30, message = "ERROR 400. Product brand must be 30 characters or less")
     private String productBrand;
-    @NotBlank(message = "Product category is mandatory")
-    @Pattern(regexp="^(Food|Clothes|Electronics|Home|Health|Beauty|Automotive|Shoes|Other)$", message="Product category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other")
+    @NotBlank(message = "ERROR 400. Product category is mandatory")
+    @Pattern(regexp="^(Food|Clothes|Electronics|Home|Health|Beauty|Automotive|Shoes|Other)$", message="ERROR 400. Product category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other")
     @JsonProperty("category")
     private String productCategory;
     @JsonProperty("characteristics")

@@ -50,10 +50,10 @@ public class ProductServiceController {
         return ack;
     }
 
-    @DeleteMapping(value = "/product/{providerId}/{productId}", produces = "application/json")
-    public Ack deleteProduct(@PathVariable("providerId") int providerId, @PathVariable("productId") int productId) {
+    @DeleteMapping(value = "/product/{productId}", produces = "application/json")
+    public Ack deleteProduct(@PathVariable("productId") int productId) {
         Ack ack = new Ack();
-        if (productBusiness.deleteProduct(productId, providerId)) {
+        if (productBusiness.deleteProduct(productId)) {
             ack.setCode(200);
             ack.setDescription("Product deleted succesfully");
         } else {

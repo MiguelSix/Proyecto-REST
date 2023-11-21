@@ -26,8 +26,8 @@ public class ProductBusiness {
         return productDao.updateProduct(productId, product);
     }
 
-    public boolean deleteProduct(int productId, int providerId) {
-        return productDao.deleteProduct(productId, providerId);
+    public boolean deleteProduct(int productId) {
+        return productDao.deleteProduct(productId);
     }
 
     public List<Product> getAllProducts() {

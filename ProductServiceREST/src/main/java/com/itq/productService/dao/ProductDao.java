@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import com.itq.productService.dto.Characteristics;
 import com.itq.productService.dto.Product;
+import com.itq.productService.service.CustomProductException;
 
 @Repository
 public class ProductDao {
@@ -74,22 +75,23 @@ public class ProductDao {
         }
     }
 
-    public boolean updateProduct(int productId, Product product) {
+    @SuppressWarnings("deprecation")
+	public boolean updateProduct(int productId, Product product) {
         int userId = product.getProviderId();
 
         try {
             // Verify that the user exists and is a Provider
             if (!isProviderUser(userId)) {
-                LOGGER.error("Error updating product: User with ID {} either does not exist or is not a Provider.", userId);
-                return false;
+                String errorMessage = "ERROR 404: User with ID {" + userId + "} either does not exist or is not a Provider.";
+                LOGGER.error(errorMessage);
+                throw new CustomProductException(errorMessage);
             }
 
-            Product existingProduct = getProductById(productId);
-
-            // Verify that the product exists
-            if (existingProduct == null) {
-                LOGGER.error("Error updating product: Product with ID {} does not exist.", productId);
-                return false;
+            // check if the product exists
+            if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM products WHERE productId = ?)", new Object[]{productId}, Boolean.class)) {
+                String errorMessage = "ERROR 404: Product with id: {" + productId + "} does not exist on the database.";
+                LOGGER.error(errorMessage);
+                throw new CustomProductException(errorMessage);
             }
 
             StringBuffer productSql= new StringBuffer("");
@@ -131,36 +133,35 @@ public class ProductDao {
             LOGGER.info("Product retrieved succesfully with ID: { " + product.getProductId() + " }");
             return product;
         } catch (Exception e) {
-            LOGGER.error("Error retrieving product from the database. Message " + e.getMessage());
+            String errorMessage = "ERROR 404: Product with id: {" + productId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
         }
-        return null;
     }
 
-    public boolean deleteProduct(int productId, int userId) {
-        // Verify that the user exists and is a Provider
-        if (!isProviderUser(userId)) {
-            LOGGER.error("Error deleting product: User with ID {} either does not exist or is not a Provider.", userId);
-            return false;
-        }
+    @SuppressWarnings("deprecation")
+	public boolean deleteProduct(int productId) {
         StringBuffer productSql= new StringBuffer("");
-        productSql.append("DELETE FROM products WHERE productId = ? AND providerId = ?");
+        productSql.append("DELETE FROM products WHERE productId = ?");
         final String productQuery = productSql.toString();
 
-        //Also delete the characteristics of the product
-        String characteristicSql = "DELETE FROM characteristics WHERE productId = ?";
-        jdbcTemplate.update(characteristicSql, productId);
-        LOGGER.info("Characteristics deleted succesfully for product with ID: { " + productId + " }");
+        //If there are no products, return a message
+        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM products WHERE productId = ?", new Object[]{productId}, Integer.class) == 0) {
+            String errorMessage = "ERROR 404: Product with id: {" + productId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
+        }
 
         try {
-            int rowsAffected = jdbcTemplate.update(productQuery, productId, userId);
-            if (rowsAffected == 0) {
-                LOGGER.error("Error deleting product: Product with ID {} does not exist.", productId);
-                return false;
-            }
+            jdbcTemplate.update(productQuery, productId);
             LOGGER.info("Product deleted succesfully with ID: { " + productId + " }");
+            // Delete characteristics
+            String deleteCharacteristicsSql = "DELETE FROM characteristics WHERE productId = ?";
+            jdbcTemplate.update(deleteCharacteristicsSql, productId);
             return true;
         } catch (Exception e) {
-            LOGGER.error("Error deleting product from the database. Message " + e.getMessage());
+            LOGGER.error("Error deleting product with ID {} in the database. Message {}", productId, e.getMessage());
+            e.printStackTrace();
         }
         return false;
     }
@@ -169,6 +170,13 @@ public class ProductDao {
         StringBuffer productSql= new StringBuffer("");
         productSql.append("SELECT * FROM products");
         final String productQuery = productSql.toString();
+
+        //If there are no products, return a message
+        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM products", Integer.class) == 0) {
+            String errorMessage = "ERROR 404: There are no products on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
+        }
 
         try {
             List <Product> products = jdbcTemplate.query(productQuery, new ProductRowMapper());
@@ -180,14 +188,21 @@ public class ProductDao {
         return null;
     }
 
-    public List <Product> getProductsByCategory(String category) {
+    @SuppressWarnings("deprecation")
+	public List <Product> getProductsByCategory(String category) {
         StringBuffer productSql= new StringBuffer("");
         productSql.append("SELECT * FROM products WHERE category = ?");
         final String productQuery = productSql.toString();
 
+        //If there are no products, return a message
+        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM products WHERE category = ?", new Object[]{category}, Integer.class) == 0) {
+            String errorMessage = "ERROR 404: There are no products with category: {" + category + "} on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
+        }
+
         try {
-            @SuppressWarnings("deprecation")
-			List <Product> products = jdbcTemplate.query(productQuery, new Object[]{category}, new ProductRowMapper());
+            List <Product> products = jdbcTemplate.query(productQuery, new Object[]{category}, new ProductRowMapper());
             LOGGER.info("All products retrieved succesfully");
             return products;
         } catch (Exception e) {
@@ -196,18 +211,26 @@ public class ProductDao {
         return null;
     }
 
-    public List <Product> getProductsByProviderId(int userId) {
-        // Verify that the user exists and is a Provider
+    @SuppressWarnings("deprecation")
+	public List <Product> getProductsByProviderId(int userId) {
+        // Verify that the user exists 
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE userId = ?)", new Object[]{userId}, Boolean.class)) {
+            String errorMessage = "ERROR 404: User with ID {" + userId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
+        }   
+
+        // Verify that the user is a Provider
         if (!isProviderUser(userId)) {
-            LOGGER.error("Error retrieving products: User with ID {} either does not exist or is not a Provider.", userId);
-            return null;
+            String errorMessage = "ERROR 401 Unathorized: User with ID {" + userId + "} is not a Provider.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
         }
         StringBuffer productSql= new StringBuffer("");
         productSql.append("SELECT * FROM products WHERE providerId = ?");
         final String productQuery = productSql.toString();
 
         try {
-            @SuppressWarnings("deprecation")
 			List <Product> products = jdbcTemplate.query(productQuery, new Object[]{userId}, new ProductRowMapper());
             LOGGER.info("All products retrieved succesfully");
             return products;
@@ -218,13 +241,22 @@ public class ProductDao {
     }
 
     
-    public boolean createProduct(final Product product) {
+    @SuppressWarnings("deprecation")
+	public boolean createProduct(final Product product) {
         int userId = product.getProviderId();
 
-        // Verify that the user exists and is a Provider
+        // Verify that the user exists
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE userId = ?)", new Object[]{userId}, Boolean.class)) {
+            String errorMessage = "ERROR 404: User with ID {" + userId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
+        }
+
+        // Verify that the user is a Provider
         if (!isProviderUser(userId)) {
-            LOGGER.error("Error creating product: User with ID {} either does not exist or is not a Provider.", userId);
-            return false;
+            String errorMessage = "ERROR 401 Unathorized: User with ID {" + userId + "} is not a Provider. Cannot create a product.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
         }
 
         // Insert product
