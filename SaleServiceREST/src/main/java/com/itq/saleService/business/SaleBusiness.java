@@ -19,7 +19,18 @@ public class SaleBusiness {
 	 public Sale getSaleById(int saleId) {
         return saleDao.getSaleById(saleId);
      }
-
+     public List<Sale> getAllSales() {
+	 	return (List<Sale>) saleDao.getAllSales();
+	 }
+     public List<Sale> getSalesByCategory(String category) {
+	 	return (List<Sale>) saleDao.getSaleByCategory(category);
+	 }
+     public List<Sale> getSalesByClient(int client) {
+ 	 	return (List<Sale>) saleDao.getSaleByClient(client);
+ 	 }
+     public List<Sale> getSalesByDate(String date) {
+ 	 	return (List<Sale>) saleDao.getSaleByDate(date);
+ 	 }
      public boolean updateSaleStatus(int userId, String newStatus) {
         return saleDao.updateSaleStatus(userId, newStatus);
      }
@@ -28,7 +39,5 @@ public class SaleBusiness {
         return saleDao.deleteSale(saleId);
      }
 
-     public List<Sale> getAllSales() {
-	 	return (List<Sale>) saleDao.getAllSales();
-	 }
+
 }

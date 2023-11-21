@@ -47,6 +47,18 @@ public class SaleServiceController {
     public List<Sale> getAllSales() {
         return (List<Sale>) saleBusiness.getAllSales();
     }
+    @GetMapping(value = "/sales/category/{category}")
+    public List<Sale> getSalesByCategory(@PathVariable("category") String category) {
+        return (List<Sale>) saleBusiness.getSalesByCategory(category);
+    }
+    @GetMapping(value = "/sales/date/{date}")
+    public List<Sale> getSalesByDate(@PathVariable("date") String date) {
+        return (List<Sale>) saleBusiness.getSalesByDate(date);
+    }
+    @GetMapping(value = "/sales/clientId/{clientId}")
+    public List<Sale> getSalesByCient(@PathVariable("clientId") int clientId) {
+        return (List<Sale>) saleBusiness.getSalesByClient(clientId);
+    }
     @PutMapping(value = "/sale/{saleId}/status", consumes = "application/json", produces = "application/json")
     public Ack updateSaleStatus(@Valid @PathVariable("saleId") int saleId, @RequestParam("status") String newStatus) {
         Ack ack = new Ack();
