@@ -34,10 +34,34 @@ public class SaleDao {
         int count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
         return count > 0;
     }
+    public boolean existClient(int userId) {
+        String sql = "SELECT COUNT(*) FROM users WHERE type = 'Client' AND userId = ?";
+        int count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        return count > 0;
+    }
     public boolean existProduct(int productId) {
         String sql = "SELECT COUNT(*) FROM products WHERE productId = ?";
         int count = jdbcTemplate.queryForObject(sql, Integer.class, productId);
         return count > 0;
+    }
+    public boolean existDate(String date) {
+        String sql = "SELECT COUNT(*) FROM sales WHERE date = ?";
+        int count = jdbcTemplate.queryForObject(sql, Integer.class, date);
+        return count > 0;
+    }
+    public boolean existCategory(String category) {
+        String sql = "SELECT COUNT(*) FROM sales WHERE category = ?";
+        int count = jdbcTemplate.queryForObject(sql, Integer.class, category);
+        return count > 0;
+    }
+    public boolean verifyCategory(String category) {
+        String[] allowedCategories = {"Food", "Clothes", "Electronics", "Home", "Health", "Beauty", "Automotive", "Shoes", "Other"};
+        for (String allowedCategory : allowedCategories) {
+            if (category.equalsIgnoreCase(allowedCategory)) {
+                return true;
+            }
+        }
+        return false;
     }
     public String getProductCategory(int productId) {
     	String sql = "SELECT category FROM products WHERE productId = ?";
@@ -82,7 +106,7 @@ public class SaleDao {
 		
 		//Verify that the client exist in the bd
 		if(!this.existUser(clientId)){
-			String errorMessage ="Error creating the sale: Client with ID {} either does not exist."+ clientId;
+			String errorMessage ="Error creating the sale: Client with ID {"+ clientId+"} either does not exist.";
 			LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 			
@@ -90,7 +114,7 @@ public class SaleDao {
 
 		//Verify that the product exist in the bd
 		if(!this.existProduct(productId)){
-			String errorMessage="Error creating the sale: Product with ID {} either does not exist."+productId;
+			String errorMessage="Error creating the sale: Product with ID {"+productId+"} either does not exist.";
 			LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 			
@@ -158,7 +182,75 @@ public class SaleDao {
         }
         return null;
 	}
-	
+	public List<Sale> getSaleByCategory(String category){
+		if(!this.verifyCategory(category)) {
+			String errorMessage = "Sale category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+			
+		}
+		if(!this.existCategory(category)) {
+			String errorMessage = "Sale don't exist with category: { " + category + " }";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+			
+		}
+        StringBuffer saleSql= new StringBuffer("");
+        saleSql.append("SELECT * FROM sales WHERE category = ?");
+        final String saleQuery = saleSql.toString();
+
+        try {
+            @SuppressWarnings("deprecation")
+			List <Sale> sales = jdbcTemplate.query(saleQuery, new Object[]{category}, new SaleRowMapper());
+            LOGGER.info("All sales retrieved succesfully");
+            return sales;
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving all the sales from the database. Message " + e.getMessage());
+        }
+        return null;
+	}
+	public List<Sale> getSaleByClient(int clientId){
+		if(!this.existClient(clientId)){
+			String errorMessage ="Error locating the sale: Client with ID {"+ clientId+"} either does not exist.";
+			LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+			
+		}
+        StringBuffer saleSql= new StringBuffer("");
+        saleSql.append("SELECT * FROM sales WHERE clientId = ?");
+        final String saleQuery = saleSql.toString();
+
+        try {
+            @SuppressWarnings("deprecation")
+			List <Sale> sales = jdbcTemplate.query(saleQuery, new Object[]{clientId}, new SaleRowMapper());
+            LOGGER.info("All sales retrieved succesfully");
+            return sales;
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving all the sales from the database. Message " + e.getMessage());
+        }
+        return null;
+	}
+	public List<Sale> getSaleByDate(String date){
+		if(!this.existDate(date)){
+			String errorMessage ="Error locating sale: Date  {"+ date+"} either does not exist.";
+			LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+			
+		}
+        StringBuffer saleSql= new StringBuffer("");
+        saleSql.append("SELECT * FROM sales WHERE date = ?");
+        final String saleQuery = saleSql.toString();
+
+        try {
+            @SuppressWarnings("deprecation")
+			List <Sale> sales = jdbcTemplate.query(saleQuery, new Object[]{date}, new SaleRowMapper());
+            LOGGER.info("All sales retrieved succesfully");
+            return sales;
+        } catch (Exception e) {
+            LOGGER.error("Error retrieving all the sales from the database. Message " + e.getMessage());
+        }
+        return null;
+	}
 	public boolean updateSaleStatus(int saleId,String newStatus) {
 		if(!this.existSale(saleId)) {
 			String errorMessage = "Sale with id: {" + saleId + "} does not exist on the database.";
