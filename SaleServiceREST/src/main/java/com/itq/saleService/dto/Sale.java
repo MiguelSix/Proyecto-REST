@@ -27,7 +27,8 @@ public class Sale {
 	@NotBlank(message = "ERROR 404. Status is mandatory")
 	@Pattern(regexp = "^(Active|Inactive)$", message = "ERROR 404. Status must be either Active or Inactive")
 	private String status;
-	@Pattern(regexp="^(Food|Clothes|Electronics|Home|Health|Beauty|Automotive|Shoes|Other)$", message="ERROR 404. Sale category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other")
+	@NotBlank(message = "ERROR 400. Product category is mandatory")
+    @Pattern(regexp="^(Food|Clothes|Electronics|Home|Health|Beauty|Automotive|Shoes|Other)$", message="ERROR 400. Product category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other")
     @JsonProperty("category")
     private String saleCategory;
 	

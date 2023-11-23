@@ -1,5 +1,9 @@
 package com.itq.saleService.dao;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.validation.Valid;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,6 +18,9 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
+
 
 import com.itq.saleService.dto.Sale;
 import com.itq.saleService.service.CustomSaleException;
@@ -36,6 +43,11 @@ public class SaleDao {
     }
     public boolean existClient(int userId) {
         String sql = "SELECT COUNT(*) FROM users WHERE type = 'Client' AND userId = ?";
+        int count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
+        return count > 0;
+    }
+    public boolean existProvider(int userId) {
+        String sql = "SELECT COUNT(*) FROM users WHERE type = 'Provider' AND userId = ?";
         int count = jdbcTemplate.queryForObject(sql, Integer.class, userId);
         return count > 0;
     }
@@ -62,6 +74,18 @@ public class SaleDao {
             }
         }
         return false;
+    }
+    public boolean verifyStatus(String status) {
+        if(status.equals("Active") || status.equals("Inactive"))
+        	return true;
+        return false;
+    }
+    private static final String DATE_PATTERN = "\\d{4}-\\d{2}-\\d{2}";
+    private static final Pattern pattern = Pattern.compile(DATE_PATTERN);
+
+    public boolean isValidDate(String date) {
+        Matcher matcher = pattern.matcher(date);
+        return matcher.matches();
     }
     public String getProductCategory(int productId) {
     	String sql = "SELECT category FROM products WHERE productId = ?";
@@ -283,7 +307,7 @@ public class SaleDao {
 
 	public boolean deleteSale(int saleId) {
 		if(!this.existSale(saleId)) {
-			String errorMessage = "ERROR 404. Sale with ID {} either does not exist ."+saleId;
+			String errorMessage = "ERROR 404. Sale with ID {"+ saleId +"} either does not exist .";
 			LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
 		}
@@ -325,5 +349,91 @@ public class SaleDao {
         }
         return null;
     }
+    
+    @SuppressWarnings("deprecation")
+	public List<Sale> getSalesFiltered(String category, String date, String status, String providerId, String clientId, String productId) {
+        StringBuilder saleSql = new StringBuilder("SELECT * FROM sales WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (!category.isEmpty()) {
+        	
+        	if(!this.verifyCategory(category)) {
+    			String errorMessage = "ERROR 400. Sale category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other";
+                LOGGER.error(errorMessage);
+                throw new CustomSaleException(errorMessage);
+    			
+    		}
+            saleSql.append(" AND category = ?");
+            params.add(category);
+        }
+
+        if (!date.isEmpty()) {
+        	if(!this.isValidDate(date)) {
+    			String errorMessage = "ERROR 404. Date should be in the format YYYY-MM-DD";
+                LOGGER.error(errorMessage);
+                throw new CustomSaleException(errorMessage);
+    			
+    		}
+            saleSql.append(" AND date = ?");
+            params.add(date);
+        }
+
+        if (!status.isEmpty()) {
+        	if(!this.verifyStatus(status)){
+    			String errorMessage = "ERROR 404. Status must be either Active or Inactive";
+                LOGGER.error(errorMessage);
+                throw new CustomSaleException(errorMessage);
+    			
+    		}
+            saleSql.append(" AND status = ?");
+            params.add(status);
+        }
+        if (!providerId.isEmpty()) {
+        	int intProvider = Integer.parseInt(providerId);
+        	if(!this.existProvider(intProvider)){
+    			String errorMessage = "Error 404. Client with ID {"+ clientId+"} either does not exist on the database or isn't a provider.";
+                LOGGER.error(errorMessage);
+                throw new CustomSaleException(errorMessage);
+    			
+    		}
+            saleSql.append(" AND providerId = ?");
+            params.add(intProvider);
+        }
+        if (!clientId.isEmpty()) {
+        	int intClient = Integer.parseInt(clientId);
+        	if(!this.existClient(intClient)){
+    			String errorMessage = "Error 404. Client with ID {"+ clientId+"} either does not exist on the database or isn't a client";
+                LOGGER.error(errorMessage);
+                throw new CustomSaleException(errorMessage);
+    			
+    		}
+            saleSql.append(" AND clientId = ?");
+            params.add(intClient);
+        }
+        if (!productId.isEmpty()) {
+        	int intProduct = Integer.parseInt(productId);
+        	if(!this.existProduct(intProduct)){
+    			String errorMessage = "ERROR 404. Product with ID{"+productId+"} doent't exist in database";
+                LOGGER.error(errorMessage);
+                throw new CustomSaleException(errorMessage);
+    			
+    		}
+            saleSql.append(" AND productId = ?");
+            params.add(intProduct);
+        }
+        final String saleQuery = saleSql.toString();
+
+        try {
+            List<Sale> sales = jdbcTemplate.query(saleQuery, params.toArray(), new SaleRowMapper());
+            LOGGER.info("All sales retrieved successfully");
+
+            return sales;
+        } catch (Exception e) {
+        	String errorMessage = "Error retrieving all the sales from the database. Message: ";
+            LOGGER.error(errorMessage + e.getMessage());
+            throw new CustomSaleException(errorMessage, e);
+        }
+    }
+
 
 }

@@ -43,10 +43,10 @@ public class SaleServiceController {
 		return saleBusiness.getSaleById(saleId);
 	}
 	
-    @GetMapping(value = "/sales")
+    /*@GetMapping(value = "/sales")
     public List<Sale> getAllSales() {
         return (List<Sale>) saleBusiness.getAllSales();
-    }
+    }*/
     @GetMapping(value = "/sales/category/{category}")
     public List<Sale> getSalesByCategory(@PathVariable("category") String category) {
         return (List<Sale>) saleBusiness.getSalesByCategory(category);
@@ -59,6 +59,19 @@ public class SaleServiceController {
     public List<Sale> getSalesByCient(@PathVariable("clientId") int clientId) {
         return (List<Sale>) saleBusiness.getSalesByClient(clientId);
     }
+    @GetMapping("/sales")
+    public List<Sale> getSale(
+        @RequestParam(value = "category", required = false) String category,
+        @RequestParam(value = "date", required = false) String date,
+        @RequestParam(value = "status", required = false) String status,
+        @RequestParam(value = "providerId", required = false) String providerId,
+        @RequestParam(value = "clientId", required = false) String clientId,
+        @RequestParam(value = "productId", required = false) String productId) 
+    {
+        
+        return saleBusiness.getSalesFiltered(category, date, status,providerId,clientId,productId);
+    }
+
     @PutMapping(value = "/sale/{saleId}/status", consumes = "application/json", produces = "application/json")
     public Ack updateSaleStatus(@Valid @PathVariable("saleId") int saleId, @RequestParam("status") String newStatus) {
         Ack ack = new Ack();
