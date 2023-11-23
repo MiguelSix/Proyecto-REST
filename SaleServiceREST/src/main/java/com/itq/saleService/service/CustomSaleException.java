@@ -6,4 +6,7 @@ public class CustomSaleException extends RuntimeException {
     public CustomSaleException(String message) {
         super(message);
     }
+    public CustomSaleException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }
