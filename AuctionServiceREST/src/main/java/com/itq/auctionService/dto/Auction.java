@@ -1,5 +1,6 @@
 package com.itq.auctionService.dto;
 
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
@@ -7,12 +8,14 @@ import javax.validation.constraints.Pattern;
 public class Auction {
 	
 	private int auctionId;
+	@Min(value = 1, message = "ERROR 400. Product id is mandatory & must be greater than 0")
 	private int productId;
 	private int clientId;
+	@Min(value = 1, message = "ERROR 400. Provider id is mandatory & must be greater than 0")
 	private int providerId;
-	@Min(value = 0, message = "ERROR 400. Initial price must be greater than 0")
+	@DecimalMin(value = "0.0", inclusive = false, message = "ERROR 400. Initial price is mandatory & must be greater than 0")
 	private double initialPrice;
-	@Min(value = 0, message = "ERROR 400. Final price must be greater than 0")
+	@DecimalMin(value = "0.0", inclusive = false, message = "ERROR 400. Final price is mandatory & must be greater than 0")
 	private double finalPrice;
 	@NotBlank(message = "ERROR 400. Auction date is mandatory")
 	@Pattern(regexp = "([0-9]{4})-([0-9]{2})-([0-9]{2})", message = "ERROR 400. Auction date must be in the format yyyy-mm-dd")

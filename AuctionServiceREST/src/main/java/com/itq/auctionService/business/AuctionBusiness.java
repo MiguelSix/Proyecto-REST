@@ -20,8 +20,8 @@ public class AuctionBusiness {
         return auctionDao.getAuctionById(auctionId);
     }
 
-    public boolean updateAuction(int auctionId, Auction auction) {
-        return auctionDao.updateAuction(auctionId, auction);
+    public boolean updateAuction(int auctionId, String status) {
+        return auctionDao.updateAuction(auctionId, status);
     }
 
     public boolean deleteAuction(int auctionId) {

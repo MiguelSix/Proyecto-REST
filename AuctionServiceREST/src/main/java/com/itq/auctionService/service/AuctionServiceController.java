@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import com.itq.auctionService.business.AuctionBusiness;
 import com.itq.auctionService.dto.Ack;
@@ -38,11 +39,11 @@ public class AuctionServiceController {
         return ack;
     }
 
-    @PutMapping(value = "/auction/{auctionId}", consumes = "application/json", produces = "application/json")
-    public Ack updateAuction(@PathVariable("auctionId") int auctionId, @Valid @RequestBody Auction auction) {
+    @PutMapping(value = "/auction/{auctionId}/status", consumes = "application/json", produces = "application/json")
+    public Ack updateAuctionStatus(@Valid @PathVariable("auctionId") int auctionId, @RequestParam("status") String status) {
     	Ack ack = new Ack();
-
-        if(auctionBusiness.updateAuction(auctionId, auction)) {
+        
+        if(auctionBusiness.updateAuction(auctionId, status)) {
         	ack.setCode(200);
         	ack.setDescription("Auction updated successfully");
         } else {

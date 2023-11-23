@@ -59,6 +59,21 @@ public class AuctionDao {
 
     @SuppressWarnings("deprecation")
 	public boolean createAuction(final Auction auction) {
+
+        // If the auction ID is provided on the body, throw an exception
+        if (auction.getAuctionId() != 0) {
+            String errorMessage = "ERROR 400. Auction ID must not be provided on the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
+        // if the client ID is provided on the body, throw an exception
+        if (auction.getClientId() != 0) {
+            String errorMessage = "ERROR 400. Client ID must not be provided on the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
         // check if the product exists
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM products WHERE productId = ?)", new Object[]{auction.getProductId()}, Boolean.class)) {
             String errorMessage = "ERROR 404. Product with id: {" + auction.getProductId() + "} does not exist on the database.";
@@ -123,7 +138,8 @@ public class AuctionDao {
     }
 
     @SuppressWarnings("deprecation")
-	public boolean updateAuction(int auctionId, Auction auction) {
+	public boolean updateAuction(int auctionId, String status) {
+        
         // check if the auction exists
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM auctions WHERE auctionId = ?)", new Object[]{auctionId}, Boolean.class)) {
             String errorMessage = "ERROR 404. Auction with id: {" + auctionId + "} does not exist on the database.";
@@ -131,18 +147,26 @@ public class AuctionDao {
             throw new CustomAuctionException(errorMessage);
         }
 
+        // check if the status is valid
+        if (!status.equals("Active") && !status.equals("Inactive")) {
+            String errorMessage = "ERROR 400. Status must be Active or Inactive.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+        
         StringBuffer auctionSql = new StringBuffer("");
-        auctionSql.append("UPDATE auctions SET initialPrice = ?, finalPrice = ?, date = ?, status = ?, providerId = ?, productId = ? ");
+        auctionSql.append("UPDATE auctions ");
+        auctionSql.append("SET status = ? ");
         auctionSql.append("WHERE auctionId = ?");
 
         final String auctionQuery = auctionSql.toString();
 
         try {
-            jdbcTemplate.update(auctionQuery, auction.getInitialPrice(), auction.getFinalPrice(), auction.getAuctionDate(), auction.getAuctionStatus(), auction.getProviderId(), auction.getProductId(), auctionId);
-            LOGGER.info("Auction with id: {" + auctionId + "} updated.");
+            jdbcTemplate.update(auctionQuery, status, auctionId);
+            LOGGER.info("Auction with id: {" + auctionId + "} updated succesfully on the database.");
             return true;
         } catch (Exception e) {
-            LOGGER.error("Error updating auction on the database. Message: " + e.getMessage());
+            LOGGER.error("Error updating auction with id: {" + auctionId + "} on the database. Message: " + e.getMessage());
             return false;
         }
     }
