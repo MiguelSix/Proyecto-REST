@@ -15,7 +15,6 @@ public class Auction {
 	private int providerId;
 	@DecimalMin(value = "0.0", inclusive = false, message = "ERROR 400. Initial price is mandatory & must be greater than 0")
 	private double initialPrice;
-	@DecimalMin(value = "0.0", inclusive = false, message = "ERROR 400. Final price is mandatory & must be greater than 0")
 	private double finalPrice;
 	@NotBlank(message = "ERROR 400. Auction date is mandatory")
 	@Pattern(regexp = "([0-9]{4})-([0-9]{2})-([0-9]{2})", message = "ERROR 400. Auction date must be in the format yyyy-mm-dd")

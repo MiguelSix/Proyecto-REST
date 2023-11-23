@@ -39,10 +39,10 @@ public class AuctionServiceController {
         return ack;
     }
 
-    @PutMapping(value = "/auction/{auctionId}/status", consumes = "application/json", produces = "application/json")
-    public Ack updateAuctionStatus(@Valid @PathVariable("auctionId") int auctionId, @RequestParam("status") String status) {
+    @PutMapping(value = "/auction", consumes = "application/json", produces = "application/json")
+    public Ack updateAuctionStatus(@RequestParam(value = "auctionId", required = true) int auctionId, @RequestParam(value = "status", required = true) String status) {
     	Ack ack = new Ack();
-        
+
         if(auctionBusiness.updateAuction(auctionId, status)) {
         	ack.setCode(200);
         	ack.setDescription("Auction updated successfully");

@@ -74,6 +74,13 @@ public class AuctionDao {
             throw new CustomAuctionException(errorMessage);
         }
 
+        // If the final price is provided on the body, throw an exception
+        if (auction.getFinalPrice() != 0) {
+            String errorMessage = "ERROR 400. Final price must not be provided on the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
         // check if the product exists
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM products WHERE productId = ?)", new Object[]{auction.getProductId()}, Boolean.class)) {
             String errorMessage = "ERROR 404. Product with id: {" + auction.getProductId() + "} does not exist on the database.";
@@ -153,7 +160,7 @@ public class AuctionDao {
             LOGGER.error(errorMessage);
             throw new CustomAuctionException(errorMessage);
         }
-        
+
         StringBuffer auctionSql = new StringBuffer("");
         auctionSql.append("UPDATE auctions ");
         auctionSql.append("SET status = ? ");
@@ -308,9 +315,44 @@ public class AuctionDao {
     @SuppressWarnings("deprecation")
 	public boolean createBid(int auctionId, Bid bid) {
 
+        // If the bid ID is provided on the body, throw an exception
+        if (bid.getBidId() != 0) {
+            String errorMessage = "ERROR 400. Bid ID must not be provided on the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
+        // if the auction ID is provided on the body, throw an exception
+        if (bid.getAuctionId() != 0) {
+            String errorMessage = "ERROR 400. Auction ID must not be provided on the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
+        // if the provider ID is provided on the body, throw an exception
+        if (bid.getProviderId() != 0) {
+            String errorMessage = "ERROR 400. Provider ID must not be provided on the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
+        // if the product ID is provided on the body, throw an exception
+        if (bid.getProductId() != 0) {
+            String errorMessage = "ERROR 400. Product ID must not be provided on the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
         // check if the auction exists
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM auctions WHERE auctionId = ?)", new Object[]{auctionId}, Boolean.class)) {
             String errorMessage = "ERROR 404. Auction with id: {" + auctionId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+
+        // check if the auction is active
+        if (!jdbcTemplate.queryForObject("SELECT status FROM auctions WHERE auctionId = ?", new Object[]{auctionId}, String.class).equals("Active")) {
+            String errorMessage = "ERROR 409. Auction with id: {" + auctionId + "} is not active.";
             LOGGER.error(errorMessage);
             throw new CustomAuctionException(errorMessage);
         }

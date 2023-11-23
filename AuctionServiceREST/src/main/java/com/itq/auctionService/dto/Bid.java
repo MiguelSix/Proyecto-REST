@@ -8,13 +8,10 @@ import javax.validation.constraints.Pattern;
 public class Bid {
 
     private int bidId;
-	@Min(value = 1, message = "ERROR 400. Auction id is mandatory & must be greater than 0")
     private int auctionId;
 	@Min(value = 1, message = "ERROR 400. Client id is mandatory & must be greater than 0")
     private int clientId;
-	@Min(value = 1, message = "ERROR 400. Provider id is mandatory & must be greater than 0")
     private int providerId;
-	@Min(value = 1, message = "ERROR 400. Product id is mandatory & must be greater than 0")
     private int productId;
     @NotBlank(message = "ERROR 400. Date is mandatory")
     @Pattern(regexp = "([0-9]{4})-([0-9]{2})-([0-9]{2})", message = "ERROR 400. Date must be in the format yyyy-mm-dd")
