@@ -2,8 +2,10 @@ package com.itq.productService.dto;
 
 import java.util.List;
 
+import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 import org.hibernate.validator.constraints.Length;
@@ -17,9 +19,11 @@ public class Product {
     @NotBlank(message = "ERROR 400. Product name is mandatory")
     @Length(max = 30, message = "ERROR 400. Product name must be 30 characters or less")
     private String productName;
-    @Min(value = 0, message = "ERROR 400. Product price must be greater than 0")
+	@NotNull(message = "ERROR 400. Product price is mandatory")
+    @DecimalMin(value = "0.0", inclusive = false, message = "ERROR 400. Product price is mandatory & must be greater than 0")
     private double productPrice;
-    @Min(value = 0, message = "ERROR 400. Product stock must be greater than 0")
+	@NotNull(message = "ERROR 400. Product stock is mandatory")
+    @Min(value = 1, message = "ERROR 400. Product stock is mandatory & must be greater than 0")
     @JsonProperty("stock")
     private int productStock;
     @NotBlank(message = "ERROR 400. Product brand is mandatory")

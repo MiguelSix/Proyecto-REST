@@ -77,6 +77,22 @@ public class ProductDao {
 
     @SuppressWarnings("deprecation")
 	public boolean updateProduct(int productId, Product product) {
+
+        // If the productID is provided in the body, throw an exception
+        if (product.getProductId() != 0) {
+            String errorMessage = "ERROR 400: Product ID cannot be updated.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
+        }
+
+        // The providerId cannot be updated
+        if (product.getProviderId() != 0) {
+            String errorMessage = "ERROR 400: Provider ID cannot be updated.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
+        }
+
+
         int userId = product.getProviderId();
 
         try {
@@ -244,7 +260,22 @@ public class ProductDao {
     
     @SuppressWarnings("deprecation")
 	public boolean createProduct(final Product product) {
+
+        // If the productID is provided in the body, throw an exception
+        if (product.getProductId() != 0) {
+            String errorMessage = "ERROR 400: Product ID cannot be created.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
+        }
+
         int userId = product.getProviderId();
+
+        // Verify that the userID is provided in the body
+        if (userId == 0) {
+            String errorMessage = "ERROR 400: Provider ID is mandatory.";
+            LOGGER.error(errorMessage);
+            throw new CustomProductException(errorMessage);
+        }
 
         // Verify that the user exists
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE userId = ?)", new Object[]{userId}, Boolean.class)) {
