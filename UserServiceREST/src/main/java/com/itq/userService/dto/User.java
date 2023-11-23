@@ -5,8 +5,11 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.Length;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class User {
 	
+	@JsonProperty("userId")
 	private int userID;
 	@NotBlank(message = "ERROR 400. Name is mandatory")
 	@Length(max = 15, message = "ERROR 400. Name must be less than 15 characters")
@@ -19,6 +22,7 @@ public class User {
 	@NotBlank(message = "ERROR 400. Phone is mandatory")
 	@Pattern(regexp="[0-9]{10}", message = "ERROR 400. Phone must be 10 digits")
 	private String phone;
+	@JsonProperty("email")
 	@NotBlank(message = "ERROR 400. Mail is mandatory")
 	@Pattern(regexp="^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+.[a-zA-Z]{2,})$", message = "ERROR 400. Mail must be a valid mail")
 	private String mail;

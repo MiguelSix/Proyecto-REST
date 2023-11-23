@@ -10,12 +10,15 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Address {
 	
+	@JsonProperty("addressId")
 	private int addressID;
 	@NotBlank(message = "ERROR 400. Street is mandatory")
 	@Length(max = 50, message = "ERROR 400. Street must be less than 50 characters")
 	private String street;
 	@Min(value = 1, message = "ERROR 400. ExtNumber must be greater than 0")
+	@JsonProperty("exteriorNumber")
 	private int extNumber;
+	@JsonProperty("interiorNumber")
 	@Min(value = 1, message = "ERROR 400. IntNumber must be greater than 0")
 	private int intNumber;
 	@JsonProperty("suburb")

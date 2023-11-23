@@ -79,6 +79,22 @@ public class UserDao {
     }
 
     public boolean createUser(final User user) {
+
+        //Check if the user ID is specified, if so, throw an exception
+        if(user.getUserID() != 0) {
+            String errorMessage = "ERROR 400. User ID must not be specified";
+            LOGGER.error(errorMessage);
+            throw new CustomUserException(errorMessage);
+        }
+
+        //Check if the address ID is specified, if so, throw an exception
+        if(user.getAddress().getAddressID() != 0) {
+            String errorMessage = "ERROR 400. Address ID must not be specified";
+            LOGGER.error(errorMessage);
+            throw new CustomUserException(errorMessage);
+        }
+
+
         // Step 1: Insert data into the 'address' table
         Address address = user.getAddress();
         StringBuffer addressSql = new StringBuffer("");
@@ -172,6 +188,22 @@ public class UserDao {
     }
 
     public boolean updateUser(int userId, User user) {
+
+    //if the user ID is specified in the JSON, throw an exception because it can't be modified
+    if(user.getUserID() != 0) {
+        String errorMessage = "ERROR 400. User ID must not be specified";
+        LOGGER.error(errorMessage);
+        throw new CustomUserException(errorMessage);
+    }
+
+    //if the address ID is specified in the JSON, throw an exception because it can't be modified
+    if(user.getAddress().getAddressID() != 0) {
+        String errorMessage = "ERROR 400. Address ID must not be specified";
+        LOGGER.error(errorMessage);
+        throw new CustomUserException(errorMessage);
+    }
+
+
     // Step 1: Update data in the 'user' table
     String userSql = "UPDATE users SET name = ?, lastname = ?, phone = ?, email = ?, rfc = ?, password = ?, type = ? WHERE userId = ?";
     
