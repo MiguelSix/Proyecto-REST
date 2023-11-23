@@ -2,23 +2,22 @@ package com.itq.saleService.dto;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.PositiveOrZero;
-
-import org.hibernate.validator.constraints.Length;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class Sale {
 	private int saleId;
+	@Min(value = 1, message = "ERROR 404. Product id is mandatory & must be greater than 0")
 	private int productId;
 	private int providerId;
+	@Min(value = 1, message = "ERROR 404. Client id is mandatory & must be greater than 0")
 	private int clientId;
-	@Length(max = 30, message = "ERROR 404. Product name must be 30 characters or less")
 	private String saleName;
-	@PositiveOrZero(message = "ERROR 404. Product price must be greater than or equal to 0")
 	private float productPrice;
 	@NotBlank(message = "ERROR 404. Date is mandatory")
+	@NotNull(message = "ERROR 404. Date is mandatory")
 	@Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "ERROR 404. Date should be in the format YYYY-MM-DD")
 	private String date;
 	@Min(value = 1, message = "ERROR 404. Product quantity must be greater than 0")
@@ -27,8 +26,6 @@ public class Sale {
 	@NotBlank(message = "ERROR 404. Status is mandatory")
 	@Pattern(regexp = "^(Active|Inactive)$", message = "ERROR 404. Status must be either Active or Inactive")
 	private String status;
-	@NotBlank(message = "ERROR 400. Product category is mandatory")
-    @Pattern(regexp="^(Food|Clothes|Electronics|Home|Health|Beauty|Automotive|Shoes|Other)$", message="ERROR 400. Product category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other")
     @JsonProperty("category")
     private String saleCategory;
 	
@@ -98,9 +95,4 @@ public class Sale {
 	public void setSaleCategory(String saleCategory) {
 		this.saleCategory = saleCategory;
 	}
-	
-	
-
-	
-
 }

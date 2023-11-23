@@ -68,12 +68,31 @@ public class SaleServiceController {
         @RequestParam(value = "clientId", required = false) String clientId,
         @RequestParam(value = "productId", required = false) String productId) 
     {
-        
-        return saleBusiness.getSalesFiltered(category, date, status,providerId,clientId,productId);
+        //change null values, avoiding null pointer exception
+        if (category == null) {
+            category = "";
+        }
+        if (date == null) {
+            date = "";
+        }
+        if (status == null) {
+            status = "";
+        }
+        if (providerId == null) {
+            providerId = "";
+        }
+        if (clientId == null) {
+            clientId = "";
+        }
+        if (productId == null) {
+            productId = "";
+        }
+    
+        return saleBusiness.getSalesFiltered(category, date, status, providerId, clientId, productId);
     }
 
-    @PutMapping(value = "/sale/{saleId}/status", consumes = "application/json", produces = "application/json")
-    public Ack updateSaleStatus(@Valid @PathVariable("saleId") int saleId, @RequestParam("status") String newStatus) {
+    @PutMapping(value = "/sale", consumes = "application/json", produces = "application/json")
+    public Ack updateSaleStatus(@RequestParam(value = "saleId", required = true) int saleId, @RequestParam(value = "status", required = true) String newStatus) {
         Ack ack = new Ack();
         if (saleBusiness.updateSaleStatus(saleId, newStatus)) {
             ack.setCode(200);

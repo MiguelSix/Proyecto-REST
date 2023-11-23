@@ -2,8 +2,6 @@ package com.itq.saleService.dao;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.Valid;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -123,10 +121,59 @@ public class SaleDao {
             return sale;
         }
     }
+    //method to validate body of sale
+    public void validateBody(final Sale sale){
+
+        // if the provider ID is provided in the body, throw an exception
+        if (sale.getProviderId() != 0) {
+            String errorMessage = "ERROR 400. Provider ID should not be provided in the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+        }
+
+        // if the sale ID is provided in the body, throw an exception
+        if (sale.getSaleId() != 0) {
+            String errorMessage = "ERROR 400. Sale ID should not be provided in the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+        }
+
+        // if the sale name is provided in the body, throw an exception
+        if (sale.getSaleName() != null) {
+            String errorMessage = "ERROR 400. Sale name should not be provided in the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+        }
+
+        // if the product price is provided in the body, throw an exception
+        if (sale.getProductPrice() != 0) {
+            String errorMessage = "ERROR 400. Product price should not be provided in the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+        }
+
+        // if the product total is provided in the body, throw an exception
+        if (sale.getTotal() != 0) {
+            String errorMessage = "ERROR 400. Product total should not be provided in the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+        }
+
+        // if the product category is provided in the body, throw an exception
+        if (sale.getSaleCategory() != null) {
+            String errorMessage = "ERROR 400. Product category should not be provided in the body.";
+            LOGGER.error(errorMessage);
+            throw new CustomSaleException(errorMessage);
+        }
+    }
+
 
 	public boolean createSale(final Sale sale) {
 		int clientId = sale.getClientId();
 		int productId = sale.getProductId();
+
+        //Validate the body of the sale
+        this.validateBody(sale);
 		
 		//Verify that the client exist in the bd
 		if(!this.existUser(clientId)){
@@ -281,7 +328,7 @@ public class SaleDao {
         }
         return null;
 	}
-	public boolean updateSaleStatus(int saleId,String newStatus) {
+	public boolean updateSaleStatus(int saleId, String newStatus) {
 		if(!this.existSale(saleId)) {
 			String errorMessage = "ERROR 404. Sale with id: {" + saleId + "} does not exist on the database.";
             LOGGER.error(errorMessage);
@@ -355,7 +402,7 @@ public class SaleDao {
         StringBuilder saleSql = new StringBuilder("SELECT * FROM sales WHERE 1=1");
         List<Object> params = new ArrayList<>();
 
-        if (!category.isEmpty()) {
+        if (!category.isEmpty()&& !(category == null)) {
         	
         	if(!this.verifyCategory(category)) {
     			String errorMessage = "ERROR 400. Sale category must be one of the following: Food, Clothes, Electronics, Home, Health, Beauty, Automotive, Shoes, Other";
@@ -367,7 +414,7 @@ public class SaleDao {
             params.add(category);
         }
 
-        if (!date.isEmpty()) {
+        if (!date.isEmpty()&& !(date == null)) {
         	if(!this.isValidDate(date)) {
     			String errorMessage = "ERROR 404. Date should be in the format YYYY-MM-DD";
                 LOGGER.error(errorMessage);
@@ -378,7 +425,7 @@ public class SaleDao {
             params.add(date);
         }
 
-        if (!status.isEmpty()) {
+        if (!status.isEmpty()&& !(status == null)) {
         	if(!this.verifyStatus(status)){
     			String errorMessage = "ERROR 404. Status must be either Active or Inactive";
                 LOGGER.error(errorMessage);
@@ -388,7 +435,7 @@ public class SaleDao {
             saleSql.append(" AND status = ?");
             params.add(status);
         }
-        if (!providerId.isEmpty()) {
+        if (!providerId.isEmpty()&& !(providerId == null)) {
         	int intProvider = Integer.parseInt(providerId);
         	if(!this.existProvider(intProvider)){
     			String errorMessage = "Error 404. Client with ID {"+ clientId+"} either does not exist on the database or isn't a provider.";
@@ -399,7 +446,7 @@ public class SaleDao {
             saleSql.append(" AND providerId = ?");
             params.add(intProvider);
         }
-        if (!clientId.isEmpty()) {
+        if (!clientId.isEmpty()&& !(clientId == null)) {
         	int intClient = Integer.parseInt(clientId);
         	if(!this.existClient(intClient)){
     			String errorMessage = "Error 404. Client with ID {"+ clientId+"} either does not exist on the database or isn't a client";
@@ -410,7 +457,7 @@ public class SaleDao {
             saleSql.append(" AND clientId = ?");
             params.add(intClient);
         }
-        if (!productId.isEmpty()) {
+        if (!productId.isEmpty() && !(productId == null)) {
         	int intProduct = Integer.parseInt(productId);
         	if(!this.existProduct(intProduct)){
     			String errorMessage = "ERROR 404. Product with ID{"+productId+"} doent't exist in database";
@@ -431,7 +478,7 @@ public class SaleDao {
         } catch (Exception e) {
         	String errorMessage = "Error retrieving all the sales from the database. Message: ";
             LOGGER.error(errorMessage + e.getMessage());
-            throw new CustomSaleException(errorMessage, e);
+            throw new CustomSaleException(errorMessage + e);
         }
     }
 
