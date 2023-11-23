@@ -4,6 +4,7 @@ import javax.validation.constraints.Digits;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -15,18 +16,21 @@ public class Address {
 	@NotBlank(message = "ERROR 400. Street is mandatory")
 	@Length(max = 50, message = "ERROR 400. Street must be less than 50 characters")
 	private String street;
-	@Min(value = 1, message = "ERROR 400. ExtNumber must be greater than 0")
+	@NotNull(message = "ERROR 400. Exterior Number is mandatory")
+	@Min(value = 1, message = "ERROR 400. Exterior Number is mandatory & must be greater than 0")
 	@JsonProperty("exteriorNumber")
 	private int extNumber;
 	@JsonProperty("interiorNumber")
-	@Min(value = 1, message = "ERROR 400. IntNumber must be greater than 0")
+	@NotNull(message = "ERROR 400. Interior Number is mandatory")
+	@Min(value = 1, message = "ERROR 400. Interior Number is mandatory & must be greater than 0")
 	private int intNumber;
 	@JsonProperty("suburb")
 	@NotEmpty(message = "ERROR 400. Suburb is mandatory")
 	@NotBlank(message = "ERROR 400. Suburb is mandatory")
 	@Length(max = 50, message = "ERROR 400. Locality must be less than 50 characters")
 	private String locality;
-	@Digits(integer = 5, fraction = 0, message = "ERROR 400. ZipCode must be 5 digits")
+	@NotNull(message = "ERROR 400. ZipCode is mandatory")
+	@Digits(integer = 5, fraction = 0, message = "ERROR 400. ZipCode is mandatory & must be 5 digits")
 	private int zipCode;
 	@NotEmpty(message = "ERROR 400. City is mandatory")
 	@NotBlank(message = "ERROR 400. City is mandatory")
