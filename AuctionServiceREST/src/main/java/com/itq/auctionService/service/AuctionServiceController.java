@@ -82,9 +82,9 @@ public class AuctionServiceController {
         return auctionBusiness.getAuctionsByProviderId(providerId);
     }
 
-    @GetMapping(value = "/auctions/user/{userId}", produces = "application/json")
-    public List<Auction> getAuctionsByUserId(@PathVariable("userId") int userId) {
-        return auctionBusiness.getAuctionsByUserId(userId);
+    @GetMapping(value = "/bids/user/{userId}", produces = "application/json")
+    public List<Bid> getBidsByUserId(@PathVariable("userId") int userId) {
+        return auctionBusiness.getBidsByUserId(userId);
     }
 
     @GetMapping(value = "/auction/{auctionId}/bids", produces = "application/json")

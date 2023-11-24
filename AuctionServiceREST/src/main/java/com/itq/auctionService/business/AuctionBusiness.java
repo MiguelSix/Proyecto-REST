@@ -36,8 +36,8 @@ public class AuctionBusiness {
         return auctionDao.getAuctionsByProviderId(providerId);
     }
 
-    public List<Auction> getAuctionsByUserId(int userId) {
-        return auctionDao.getAuctionsByUserId(userId);
+    public List<Bid> getBidsByUserId(int userId) {
+        return auctionDao.getBidsByUserId(userId);
     }
 
     // methods for the bids

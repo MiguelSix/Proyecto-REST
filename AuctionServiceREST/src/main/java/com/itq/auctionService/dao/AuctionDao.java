@@ -255,7 +255,15 @@ public class AuctionDao {
     }
 
     @SuppressWarnings("deprecation")
-    public List<Auction> getAuctionsByUserId(int userId) {
+    public List<Bid> getBidsByUserId(int userId) {
+
+        // check if the user exists
+        if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE userId = ?)", new Object[]{userId}, Boolean.class)) {
+            String errorMessage = "ERROR 404. User with id: {" + userId + "} does not exist on the database.";
+            LOGGER.error(errorMessage);
+            throw new CustomAuctionException(errorMessage);
+        }
+        
         // check if the user is a client
         if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM users WHERE userId = ? AND type = 'Client')", new Object[]{userId}, Boolean.class)) {
             String errorMessage = "ERROR 404. User with id: {" + userId + "} is not a client.";
@@ -263,23 +271,23 @@ public class AuctionDao {
             throw new CustomAuctionException(errorMessage);
         }
 
-        // check if the client has auctions
-        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM auctions WHERE clientId = ?", new Object[]{userId}, Integer.class) == 0) {
-            String errorMessage = "ERROR 404. Client with id: {" + userId + "} does not have auctions on the database.";
+        // check if the client has bids
+        if (jdbcTemplate.queryForObject("SELECT COUNT(*) FROM pujas WHERE clientId = ?", new Object[]{userId}, Integer.class) == 0) {
+            String errorMessage = "ERROR 404. Client with id: {" + userId + "} does not have bids on the database.";
             LOGGER.error(errorMessage);
             throw new CustomAuctionException(errorMessage);
         }
-        StringBuffer auctionSql = new StringBuffer("");
-        auctionSql.append("SELECT * FROM auctions ");
-        auctionSql.append("WHERE clientId = ?");
+        StringBuffer bidsSql = new StringBuffer("");
+        bidsSql.append("SELECT * FROM pujas ");
+        bidsSql.append("WHERE clientId = ?");
 
-        final String auctionQuery = auctionSql.toString();
+        final String bidsQuery = bidsSql.toString();
 
         try {
-            LOGGER.info("Auctions retrieved succesfully from the database for user with id: {" + userId + "}.");
-            return jdbcTemplate.query(auctionQuery, new Object[]{userId}, new AuctionRowMapper());
+            LOGGER.info("Bids retrieved succesfully from the database for client with id: {" + userId + "}.");
+            return jdbcTemplate.query(bidsQuery, new Object[]{userId}, new BidRowMapper());
         } catch (Exception e) {
-            LOGGER.error("Error getting auctions from the database for user with id: {" + userId + "}. Message: " + e.getMessage());
+            LOGGER.error("Error getting bids from the database for client with id: {" + userId + "}. Message: " + e.getMessage());
             return null;
         }
     }
