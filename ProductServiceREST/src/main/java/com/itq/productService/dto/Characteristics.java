@@ -1,8 +1,12 @@
 package com.itq.productService.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class Characteristics {
 
+    @JsonProperty("characteristicName")
     private String name;
+    @JsonProperty("characteristicValue")
     private String value;
     
     public String getName() {

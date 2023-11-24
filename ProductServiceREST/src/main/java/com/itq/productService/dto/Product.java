@@ -2,6 +2,7 @@ package com.itq.productService.dto;
 
 import java.util.List;
 
+import javax.validation.Valid;
 import javax.validation.constraints.DecimalMin;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
@@ -34,6 +35,7 @@ public class Product {
     @JsonProperty("category")
     private String productCategory;
     @JsonProperty("characteristics")
+	@Valid
     private List<Characteristics> productCharacteristics;
     
 	public int getProductId() {
