@@ -92,17 +92,7 @@ public class ProductDao {
             throw new CustomProductException(errorMessage);
         }
 
-
-        int userId = product.getProviderId();
-
         try {
-            // Verify that the user exists and is a Provider
-            if (!isProviderUser(userId)) {
-                String errorMessage = "ERROR 404: User with ID {" + userId + "} either does not exist or is not a Provider.";
-                LOGGER.error(errorMessage);
-                throw new CustomProductException(errorMessage);
-            }
-
             // check if the product exists
             if (!jdbcTemplate.queryForObject("SELECT EXISTS(SELECT 1 FROM products WHERE productId = ?)", new Object[]{productId}, Boolean.class)) {
                 String errorMessage = "ERROR 404: Product with id: {" + productId + "} does not exist on the database.";
@@ -112,7 +102,7 @@ public class ProductDao {
 
             StringBuffer productSql= new StringBuffer("");
             productSql.append("UPDATE products SET productName = ?, productPrice = ?, stock = ?, productBrand = ?, category = ? ");
-            productSql.append("WHERE productId = ? AND providerId = ?");
+            productSql.append("WHERE productId = ?");
             final String productQuery = productSql.toString();
         
             jdbcTemplate.update(connection -> {
@@ -123,7 +113,6 @@ public class ProductDao {
                 ps.setString(4, product.getProductBrand());
                 ps.setString(5, product.getProductCategory());
                 ps.setInt(6, productId);
-                ps.setInt(7, userId);
                 return ps;
             });
             // Update or insert characteristics
