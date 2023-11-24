@@ -285,14 +285,15 @@ public class SaleDao {
 			String errorMessage ="Error 404. Client with ID {"+ clientId+"} either does not exist.";
 			LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
-			
 		}
+
         //if the client does not have sales
-        if(!this.existSale(clientId)) {
+        if(jdbcTemplate.queryForObject("SELECT COUNT(*) FROM sales WHERE clientId = ?", Integer.class, clientId) == 0) {
         	String errorMessage ="Error 404. Client with ID {"+ clientId+"} does not have sales.";
             LOGGER.error(errorMessage);
             throw new CustomSaleException(errorMessage);
         }
+        
         StringBuffer saleSql= new StringBuffer("");
         saleSql.append("SELECT * FROM sales WHERE clientId = ?");
         final String saleQuery = saleSql.toString();

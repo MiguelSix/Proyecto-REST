@@ -91,7 +91,7 @@ public class SaleServiceController {
         return saleBusiness.getSalesFiltered(category, date, status, providerId, clientId, productId);
     }
 
-    @PutMapping(value = "/sale", consumes = "application/json", produces = "application/json")
+    @PutMapping(value = "/sale", produces = "application/json")
     public Ack updateSaleStatus(@RequestParam(value = "saleId", required = true) int saleId, @RequestParam(value = "status", required = true) String newStatus) {
         Ack ack = new Ack();
         if (saleBusiness.updateSaleStatus(saleId, newStatus)) {
