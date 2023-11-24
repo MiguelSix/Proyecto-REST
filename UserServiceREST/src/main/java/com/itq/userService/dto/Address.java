@@ -1,10 +1,10 @@
 package com.itq.userService.dto;
 
-import javax.validation.constraints.Digits;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Length;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -30,8 +30,8 @@ public class Address {
 	@Length(max = 50, message = "ERROR 400. Locality must be less than 50 characters")
 	private String locality;
 	@NotNull(message = "ERROR 400. ZipCode is mandatory")
-	@Digits(integer = 5, fraction = 0, message = "ERROR 400. ZipCode is mandatory & must be 5 digits")
-	private int zipCode;
+	@Size(min = 5, max = 5, message = "ERROR 400. ZipCode is mandatory & must be exactly 5 digits")	
+	private String zipCode;
 	@NotEmpty(message = "ERROR 400. City is mandatory")
 	@NotBlank(message = "ERROR 400. City is mandatory")
 	@Length(max = 25, message = "ERROR 400. City must be less than 25 characters")
@@ -69,10 +69,10 @@ public class Address {
 	public void setLocality(String locality) {
 		this.locality = locality;
 	}
-	public int getZipCode() {
+	public String getZipCode() {
 		return zipCode;
 	}
-	public void setZipCode(int zipCode) {
+	public void setZipCode(String zipCode) {
 		this.zipCode = zipCode;
 	}
 	public String getCity() {

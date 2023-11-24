@@ -72,7 +72,7 @@ public class UserDao {
             address.setCity(rs.getString("city"));
             address.setState(rs.getString("state"));
             address.setCountry(rs.getString("country"));
-            address.setZipCode(rs.getInt("zipCode"));
+            address.setZipCode(Integer.toString(rs.getInt("zipCode")));
             user.setAddress(address);
             return user;
         }
@@ -93,7 +93,6 @@ public class UserDao {
             LOGGER.error(errorMessage);
             throw new CustomUserException(errorMessage);
         }
-
 
         // Step 1: Insert data into the 'address' table
         Address address = user.getAddress();
@@ -124,7 +123,8 @@ public class UserDao {
                     ps.setString(6, address.getCity());
                     ps.setString(7, address.getState());
                     ps.setString(8, address.getCountry());
-                    ps.setInt(9, address.getZipCode());
+                    int zipCode = Integer.parseInt(address.getZipCode());
+                    ps.setInt(9, zipCode);
                     return ps;
                 }
             }, addressKeyHolder);
@@ -246,7 +246,8 @@ public class UserDao {
             ps.setString(5, address.getCity());
             ps.setString(6, address.getState());
             ps.setString(7, address.getCountry());
-            ps.setInt(8, address.getZipCode());
+            int zipCode = Integer.parseInt(address.getZipCode());
+            ps.setInt(8, zipCode);
             ps.setInt(9, addressId);
             return ps;
         });
